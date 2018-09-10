@@ -1,0 +1,88 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Chart of Accounts</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="coa"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Un-Reconcile</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($recon);?>
+                  <form action="coaadmin" method="POST" id="coaadmin">
+                    <input type="hidden" name="mode" value="" id="mode" />
+                    <input type="hidden" name="id" value="<?=$transid?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="reconID" value="<?=$reconID?>" />
+                    
+                             <div class="row">
+                                <div class="col-xs-4">
+                                    <label>Recon Date</label><br />
+                                    <input type="text" name="enterdate" value="<?=retrieve_date($recon['lastupdate']);?>" disabled="" class="form-control" />
+                                </div>
+                            </div> 
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <label>Begin</label><br />
+                                    <h2><?=retrieve_date($recon['startdate']);?></h2><br />
+                                    <h2><?=number_money($recon['startbalance']);?></h2>
+                                </div>
+                                <div class="col-xs-4">
+                                    <label>End</label><br />
+                                    <h2><?=retrieve_date($recon['enddate']);?></h2><br />
+                                    <h2><?=number_money($recon['endbalance']);?></h2>
+                                </div>
+                            </div>
+                  
+                </div>
+                <div class="box-footer">
+                    <a class="btn btn-app" href="#" title="Remove Item" id="rmvitem"><i class="fa fa-times"></i>Just Item</a>
+                    <a class="btn btn-app" href="#" title="Remove Reconcile" id="rmrecon"><i class="fa fa-times-circle-o"></i>Delete Recon</a>
+                </div>
+                </form>
+              </div>
+            </div>
+            <script>
+                $(document).ready( function(){
+                   //Remove item submission
+                   $('#rmvitem').on('click', function(){
+                     $('#mode').val('rmvitem');
+                     $('#coaadmin').submit();
+                    
+                   });
+                   
+                   $('#rmrecon').on('click', function(){
+                    //Remove reconcile submission
+                    $('#mode').val('rmrecon');
+                    $('#coaadmin').submit();
+                 
+                  });
+                   
+                    
+                });
+            
+            </script>
+            

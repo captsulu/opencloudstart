@@ -1,0 +1,260 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Income</h3>
+              </div>
+              
+                <script type="text/javascript">
+                          function creditSum(frm){
+                                var creditAdd = parseFloat(0, 10);
+                                var inps = document.getElementsByName('credit[]');
+                                for (var i = 0; i <inps.length; i++) {
+                                var inp=inps[i];
+                                    creditAdd += parseFloat(inp.value, 10);
+                                   
+                                }
+                                                                
+                                if(document.getElementsByName("invoiceSelect[]")){
+                                    var checkboxes = document.getElementsByName('invoiceSelect[]');
+                                    var vals = 0;
+                                    var invSelect = ""; 
+                                    for (var i=0, n=checkboxes.length;i<n;i++) {
+                                        if (checkboxes[i].checked) 
+                                        {
+                                            vals = vals + parseFloat(checkboxes[i].value);
+                                            invSelect += ","+checkboxes[i].id;
+                                        }
+                                    }
+                                
+                                creditAdd = creditAdd + vals;
+                                document.deposit.inv.value = invSelect;                                    
+    
+                                }
+                                
+                             document.deposit.creditAdd.value = creditAdd.toFixed(2);
+                             document.getElementById('depositAmt').innerHTML = '$ '+creditAdd.toFixed(2);
+                            }
+                            
+                            function ActionLineAdd() {
+                                document.deposit.mode.value = 'lineadd';
+                                document.getElementById('deposit').submit();
+                                
+                            }
+                            
+                            function invoiceAdd(item) {
+                                var creditAdd = parseFloat(0, 10);
+                                var inps = document.getElementsByName('credit[]');
+                                for (var i = 0; i <inps.length; i++) {
+                                var inp=inps[i];
+                                    creditAdd += parseFloat(inp.value, 10);
+                                   
+                                }
+                                
+                                var checkboxes = document.getElementsByName('invoiceSelect[]');
+                                var vals = 0;
+                                var invSelect = "";                                
+                                for (var i=0, n=checkboxes.length;i<n;i++) {
+                                    if (checkboxes[i].checked) 
+                                    {
+                                        vals = vals + parseFloat(checkboxes[i].value);
+                                        invSelect += ","+checkboxes[i].id;                                        
+                                    }
+                                }
+                                
+                                
+                                creditAdd = creditAdd + vals; 
+                                document.deposit.creditAdd.value = creditAdd.toFixed(2);
+                                document.getElementById('depositAmt').innerHTML = '$ '+creditAdd.toFixed(2);
+                                document.deposit.inv.value = invSelect;
+                                                                
+                                                                   
+                            }
+
+                      </script>
+            
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    
+                    <ul class="nav navbar-left panel_toobox">
+                        <li><a class="btn btn-default btn-sm" href="deposit?mode=show"><i class="fa fa-history"></i> Deposit Entries</a></li>
+                    </ul>
+                    <ul class="nav navbar-right panel_toolbox">
+                       
+                       <li><a class="btn btn-default" href="main"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Deposit Entry</h2>
+                    <div class="pull-right">
+                    <b><h1 id="depositAmt"><?=number_money($depositAmt)?></h1></b>
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? //print_r($group);?>
+                  <form action="deposit" method="POST" name="deposit" id="deposit">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="transid" value="<?=$transid?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="lineCnt" value="<?=$lineCnt;?>" />
+                    <input type="hidden" name="inv" value="" id="inv" />                    
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="lineCnt" value="<?=$lineCnt;?>" />
+                    <input type="hidden" name="inv" value="" id="inv" />
+                    
+                    <? } ?>
+                    
+                    <div class="row">
+                        <div class="col-xs-2">
+                            <label>Entry Date</label><br />
+                            <input type="text" name="enterdate" value="<? if(isset($depositheader)){ echo retrieve_date($depositheader['enterdate']); } else { echo date("m/d/Y");}; ?>" placeholder="Date"  class="form-control" required="" />
+                            
+                        </div>
+                        <div class="col-xs-2">
+                            <label>Bank Account</label><br />
+                            <select class="select2_single form-control" tabindex="-1" name="bankAcct">
+                                    <? for($a=0;$a<count($bank);$a++){ ?>
+                                    <option value="<?=$bank[$a]['account'];?>" <? if(isset($bankAcct)){ isSelected($bank[$a]['account'],$bankAcct); };?> ><?=$bank[$a]['name'];?></option>
+                                    <? }  ?>
+                                      
+                            </select>  
+                            
+                        </div>
+                                                
+                        <div class="col-xs-2 pull-right">
+                            <label>Ref</label>
+                            <input type="text" name="reference" value="<? if(isset($reference)){ echo $reference; } else { echo "DEP"; };?>" placeholder="DEP" class="form-control" required="" />
+                        </div>
+                    </div>
+                    <br />
+                    <? if($payPayments>0){?>
+                    <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th class="col-xs-1"><i class="fa fa-caret-down"></i></th>
+                           <th class="col-xs-2">InvoiceID</th>
+                           <th class="col-xs-1">Ref No</th>
+                           <th class="col-xs-4">Customer</th>
+                           <th class="col-xs-2">SalesTax</th>
+                           <th class="col-xs-2">Amount Due</th> 
+                           
+                        </tr>
+                      </thead>
+                      <tbody>
+                     <? //print_r($invoice);
+                        for($z=0;$z<count($invoice);$z++){?> 
+                        
+                        <tr>
+                            <td><input type="checkbox" name="invoiceSelect[]" id="<?=$invoice[$z]['invoice_id'];?>" value="<?=$invoice[$z]['amount'];?>" onclick="return invoiceAdd(this);"/></td>
+                            <td><?=$invoice[$z]['invoice_id']?></td>
+                            <td><?=$invoice[$z]['reference']?></td>
+                            <td><?=$invoice[$z]['displayname']?></td>
+                            <td><?=number_money($invoice[$z]['salestax']);?></td>
+                            <td><?=number_money($invoice[$z]['amount']);?></td>
+                        </tr>
+                    
+                    <? } ?>
+                    </table>
+                    <br />
+                    <? } ?>
+                    <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th class="col-xs-2">Account</th>
+                           <th class="col-xs-4">Description</th>
+                           <th class="col-xs-2">Pay Type</th>
+                           <th class="col-xs-2">Ref</th>
+                           <th class="col-xs-2">Amount</th> 
+                           
+                           
+                        </tr>
+                      </thead>
+                      <tbody>
+                       
+                      <? for($c=0;$c<$lineCnt;$c++){?>
+                        <tr>
+                            <td><select class="select2_single form-control" tabindex="-1" name="account[]" >
+                                    <option value=""></option>
+                                    <? if(isset($account) && !empty($account[$c])) { 
+                                    for($a=0;$a<count($coa);$a++){ ?>
+                                    <option value="<?=$coa[$a]['account'];?>" <? isSelected($coa[$a]['account'],$account[$c]);?> ><?=$coa[$a]['account'];?>-<?=$coa[$a]['name'];?></option>
+                                    <? } } else { 
+                                    for($a=0;$a<count($coa);$a++){ ?>
+                                    <option value="<?=$coa[$a]['account'];?>" ><?=$coa[$a]['account'];?>-<?=$coa[$a]['name'];?></option>
+                                    <? } } ?>
+                                      
+                                </select>      
+                            </td>
+                            <td><input type="text" name="memo[]" value="<? if(isset($memo[$c])){ echo $memo[$c];};?>" placeholder="description" class="form-control" /></td>
+                            <td>
+                                <select class="select2_single form-control" tabindex="-1" name="paytype[]">
+                                    <option value=""></option>
+                                    <? for($a=0;$a<count($paytypes);$a++){ ?>
+                                    <option value="<?=$paytypes[$a]['id'];?>" <? if(isset($paytype)){ echo isSelected($paytypes[$a]['id'],$paytype[$c]); };?> ><?=$paytypes[$a]['name'];?></option>
+                                    <? }  ?>
+                                      
+                                </select>
+                            
+                            </td>
+                            <td><input type="text" name="ref[]" value="<? if(isset($ref[$c])){ echo $ref[$c];};?>" class="form-control" /></td>
+                            <td><input type="text" name="credit[]" value="<? if(isset($credit[$c])){ echo $credit[$c];} else { echo "0.00";};?>" class="form-control" onchange="creditSum(this.form)"/></td>
+                            
+                        </tr>
+                        
+                      <? } ?>
+                      
+                        <tr>
+                            <td><input type="submit" class="btn btn-default" value="+" onclick="ActionLineAdd();" /> <a href="print/print_depositslip.php" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Print</a></td>
+                            <td><input type="text" name="depositmemo" value="<? if(isset($depositmemo)){ echo $depositmemo; };?>" placeholder="Deposit Memo" class="form-control" /></td>
+                            <td></td>
+                            <td></td>
+                            <td><input type="text" name="creditAdd" value="<? if(isset($creditAdd)){ echo $creditAdd; } else { echo "0.00"; };?>" class="form-control" /></td>
+                            
+                          
+                        </tr>
+                      
+                      
+                     </tbody>
+                      </table>
+                       
+                                        
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            

@@ -1,0 +1,69 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Select Account to Reconcile</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <form action="reconcile" method="POST" >
+                    <input type="hidden" name="mode" value="recon" />
+                    <input type="hidden" name="account" value="<?=$bank['account'];?>" />
+                    <input type="hidden" name="startbalance" value="<?=$bank['endbalance'];?>" />
+                    <input type="hidden" name="startdate" value="<?=$bank['enddate'];?>" />
+                    
+                     <div class="row">
+                      <div class="col-xs-4">
+                        <label>Account</label>
+                        <h2><?=$bank['account'];?></h2>
+                      </div>
+                      <div class="col-xs-4">
+                        <label>Last Reconcile Date</label>
+                        <h2><?=retrieve_date($bank['enddate']);?></h2>
+                      </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-xs-4">
+                            <label>Opening Balance</label>
+                            <h2><?=number_money($bank['endbalance']);?></h2>
+                        </div>
+                        <div class="col-xs-4">
+                            <label>Ending Balance</label>
+                            <input type="text" name="endbalance" value="" class="form-control" placeholder="0.00" required="" />
+                        
+                        </div>
+                        <div class="col-xs-4">
+                            <label>Ending Date</label>
+                            <input type="date" name="enddate" value="" class="form-control" placeholder="mm/dd/yyyy" required="" />
+                        
+                        </div>
+                     </div> 
+                      
+                  </div>
+                  <div class="box-footer"></div>
+                    <input type="submit" name="submit" value="Submit" class="btn btn-primary" />
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        </form>
+        

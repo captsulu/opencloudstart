@@ -1,0 +1,400 @@
+<? 
+
+    function main($frm){ 
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        
+        
+          $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_customers where co_id = '$co' and active = '1' order by displayname
+             $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_customers where co_id = '$co' and active = '1' ";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customer[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    require('templates/show_customers.ihtml'); 
+    
+        
+    }
+    
+function find($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+      
+          $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_customers where co_id = '$co' and active = '1' and displayname like '%$displayname%' order by displayname
+             $limit";
+        
+     
+     
+     $sql2 = "select * from tbl_customers where co_id = '$co' and active = '1' and displayname like '%$displayname%' ";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customer[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    require('templates/show_customers.ihtml');  
+    
+}    
+    
+function add($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $customer = array(); 
+    $customer['displayname'] ='';
+    $customer['coname'] ='';
+    $customer['nameFirst'] ='';
+    $customer['nameLast'] ='';
+    $customer['bill_contact'] ='';
+    $customer['bill_address1'] ='';
+    $customer['bill_address2'] ='';
+    $customer['bill_city'] ='';
+    $customer['bill_state'] ='';
+    $customer['bill_zip'] ='';
+    $customer['bill_country'] ='';
+    $customer['ship_contact'] ='';
+    $customer['ship_address1'] ='';
+    $customer['ship_address2'] ='';
+    $customer['ship_city'] ='';
+    $customer['ship_state'] ='';
+    $customer['ship_zip'] ='';
+    $customer['ship_country'] ='';
+    $customer['email'] ='';
+    $customer['phone'] ='';
+    $customer['cellphone'] ='';
+    $customer['workphone'] ='';
+    $customer['fax'] ='';
+    $customer['terms'] ='';
+    
+    
+    
+    require('templates/form_customers.ihtml');
+}    
+    
+
+function insert($frm){
+    global $settings, $dbh; 
+    extract($frm);
+    
+    $ip = getIP();
+    
+    try   
+        {   
+            $data = array( "co_id"          => $co, 
+                           "displayname"    => $displayname,   
+                           "coname"         => $coname,
+                           "nameFirst"      => $nameFirst,
+                           "nameLast"       => $nameLast, 
+                           "bill_contact"   => $bill_contact,                           
+                           "bill_address1"  => $bill_address1, 
+                           "bill_address2"  => $bill_address2, 
+                           "bill_city"      => $bill_city, 
+                           "bill_state"     => $bill_state,
+                           "bill_zip"       => $bill_zip,
+                           "bill_country"   => $bill_country,
+                           "ship_contact"   => $ship_contact,
+                           "ship_address1"  => $ship_address1,
+                           "ship_address2"  => $ship_address2,
+                           "ship_city"      => $ship_city,
+                           "ship_zip"       => $ship_zip,
+                           "ship_country"   => $ship_country,
+                           "email"          => $email,
+                           "phone"          => storage_phone($phone),
+                           "cellphone"      => storage_phone($cellphone),
+                           "workphone"      => storage_phone($workphone),
+                           "fax"            => storage_phone($fax),
+                           "terms"          => $terms,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_customers", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            $frm['alert'] = '1';
+            $frm['err'] = $dbh->obj_error_message();
+            main($frm); 
+            return;
+            //log error and/or redirect user to error page   
+        }
+    
+    
+    $frm['alert'] = '2';
+    $frm['err'] = 'Customer added to database...';
+    
+    main($frm);
+    
+    
+}    
+
+function edit($frm){
+    global $settimngs, $dbh; 
+    extract($frm); 
+    
+    $sql = "select * from tbl_customers where co_id = '$co' and id = '$id'";
+    
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customer[$key] = $value;   
+            }
+            
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    $showValues = '1';
+    
+    require('templates/form_customers.ihtml');
+    
+}
+
+
+function update($frm){ 
+    global $settings, $dbh;
+    extract($frm); 
+    
+    $ip = getIP();
+    
+    try   
+        {   
+            $data = array( "co_id"          => $co, 
+                           "displayname"    => $displayname,   
+                           "coname"         => $coname,
+                           "nameFirst"      => $nameFirst,
+                           "nameLast"       => $nameLast, 
+                           "bill_contact"   => $bill_contact,                           
+                           "bill_address1"  => $bill_address1, 
+                           "bill_address2"  => $bill_address2, 
+                           "bill_city"      => $bill_city, 
+                           "bill_state"     => $bill_state,
+                           "bill_zip"       => $bill_zip,
+                           "bill_country"   => $bill_country,
+                           "ship_contact"   => $ship_contact,
+                           "ship_address1"  => $ship_address1,
+                           "ship_address2"  => $ship_address2,
+                           "ship_city"      => $ship_city,
+                           "ship_zip"       => $ship_zip,
+                           "ship_country"   => $ship_country,
+                           "email"          => $email,
+                           "phone"          => storage_phone($phone),
+                           "cellphone"      => storage_phone($cellphone),
+                           "workphone"      => storage_phone($workphone),
+                           "fax"            => storage_phone($fax),
+                           "terms"          => $terms,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_update( "tbl_customers", $data, "id=".$id );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            $frm['alert'] = '1';
+            $frm['err'] = $dbh->obj_error_message();
+            main($frm); 
+            return;
+            //log error and/or redirect user to error page   
+        }
+    
+    
+    $frm['alert'] = '2';
+    $frm['err'] = 'Customer updated in database...';
+    
+    main($frm);
+    
+    
+    
+}
+
+
+function trash($frm){
+    global $settings, $dbh;
+    extract($frm);
+    
+    //check transactions
+    $sql = "select count(id) as cnt from tbl_invoice where customer_id = '$id' and active = '1'"; 
+    //echo $sql;
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //echo "records: ".$records."<br/>";
+    
+    
+    if($records>0){
+        //error 
+        
+        $frm['alert'] = '1'; 
+        $frm['err'] = 'Sorry, you can <b>NOT</b> delete this customer, active invoices exist for this customer...';
+        
+        main($frm); 
+        return;
+        
+    } 
+    
+    
+    
+    
+    
+    
+       try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_customers", $data, "id=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+            die;
+    //log error and/or redirect user to error page  
+}   
+
+
+        $frm['alert'] = '2'; 
+        $frm['err'] = 'Customer has been removed...';
+        
+        main($frm); 
+        return;   
+    
+    
+}

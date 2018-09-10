@@ -1,0 +1,162 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Sales</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Customers</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="customers"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Customer</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="customers" method="POST">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="id" value="<?=$id?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } ?>
+                    <div class="col-xs-12">
+                        <label>Display/Contact Name</label>
+                        <input type="text" name="displayname" value="<?=$customer['displayname'];?>" placeholder="Display/Contact Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Company Name</label>
+                        <input type="text" name="coname" value="<?=$customer['coname'];?>" placeholder="Company Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>First Name</label>
+                        <input type="text" name="nameFirst" value="<?=$customer['nameFirst'];?>" placeholder="First Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Last Name</label>
+                        <input type="text" name="nameLast" value="<?=$customer['nameLast'];?>" placeholder="Last Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Billing Information</label>
+                        <input type="text" name="bill_contact" value="<?=$customer['bill_contact'];?>" placeholder="Billing Contact" class="form-control" />
+                    </div>
+                    
+                    <div class="col-xs-12">
+                        <input type="text" name="bill_address1" value="<?=$customer['bill_address1'];?>" placeholder="Address" class="form-control" />
+                    </div>   
+                    <div class="col-xs-12">
+                        <input type="text" name="bill_address2" value="<?=$customer['bill_address2'];?>" placeholder="Ste/RR/Apt" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" name="bill_city" value="<?=$customer['bill_city'];?>" placeholder="City" class="form-control" />
+                    </div>
+                    <div class="col-xs-2">
+                        <input type="text" name="bill_state" value="<?=$customer['bill_state'];?>" placeholder="State" class="form-control" />
+                    </div>
+                    <div class="col-xs-4">
+                        <input type="text" name="bill_zip" value="<?=$customer['bill_zip'];?>" placeholder="Zip/Postal" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="text" name="bill_country" value="<?=$customer['bill_country'];?>" placeholder="Country" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Shipping Information</label>                        
+                        <input type="text" name="ship_contact" value="<?=$customer['ship_contact'];?>" placeholder="Shipping Contact" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="text" name="ship_address1" value="<?=$customer['ship_address1'];?>" placeholder="Address" class="form-control" />
+                    </div>   
+                    <div class="col-xs-12">
+                        <input type="text" name="ship_address2" value="<?=$customer['ship_address2'];?>" placeholder="Ste/RR/Apt" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" name="ship_city" value="<?=$customer['ship_city'];?>" placeholder="City" class="form-control" />
+                    </div>
+                    <div class="col-xs-2">
+                        <input type="text" name="ship_state" value="<?=$customer['ship_state'];?>" placeholder="State" class="form-control" />
+                    </div>
+                    <div class="col-xs-4">
+                        <input type="text" name="ship_zip" value="<?=$customer['ship_zip'];?>" placeholder="Zip/Postal" class="form-control" />
+                    </div>
+                     <div class="col-xs-12">
+                        <input type="text" name="ship_country" value="<?=$customer['ship_country'];?>" placeholder="Country" class="form-control" />
+                    </div>
+                    
+                </div>
+                
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Contact Information</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <div class="col-xs-12">
+                        <label>Contact Information</label>
+                        <input type="email" name="email" value="<?=$customer['email'];?>" placeholder="Email" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Phone</label>
+                        <input type="text" name="phone" value="<?=$customer['phone'];?>" placeholder="Phone" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Cell Phone</label>
+                        <input type="text" name="cellphone" value="<?=$customer['cellphone'];?>" placeholder="Cell Phone" class="form-control" />
+                    </div>
+                     <div class="col-xs-6">
+                        <label>Work Phone</label>
+                        <input type="text" name="workphone" value="<?=$customer['workphone'];?>" placeholder="Work Phone" class="form-control" />
+                    </div>
+                     <div class="col-xs-6">
+                        <label>Fax</label>
+                        <input type="text" name="fax" value="<?=$customer['fax'];?>" placeholder="Fax" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Terms </label>
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="text" name="terms" value="<?=$customer['terms'];?>" placeholder="terms" class="form-control" />
+                    </div>
+                 
+                    </div>
+                    <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+                </div>
+              </div>
+            </div>

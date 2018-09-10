@@ -1,0 +1,449 @@
+<? 
+    function main($frm){
+        global $settings,$dbh; 
+        extract($frm); 
+        
+        $sql = "select * from tbl_coa where active = '1' and type_id = '4' order by account ";
+          try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $coa[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+ 
+        
+        
+        require('templates/form_rec_accts.ihtml');
+        
+        
+    }
+    
+ function bank($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+    
+    $sql2 = "select count(id) as cnt from tbl_reconcile where co_id = '$co' and account = '$account' and active = '1'"; 
+    //echo $sql2; 
+      try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+     
+        
+   if($records>0){ 
+    //get info  
+          $sql = "select * from tbl_reconcile where co_id = '$co' and account = '$account' and active = '1' order by id desc limit 1"; 
+    //echo $sql;
+           try  
+    {  $rs = $dbh->obj_query( $sql );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $bank[$key] = $value;   
+            }
+            
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    //print_r($bank);
+    require('templates/form_rec_balance.ihtml');
+    
+    
+   } else { 
+    //get opening balance 
+    //insert opening balance
+    
+    require('templates/form_rec_open.ihtml');
+    
+   }    
+    
+    
+ }
+ 
+ 
+ function open($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //
+    
+                //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = $account; 
+               $entertype = 1;        
+               
+       //deposit total credit to Bank Account  
+                
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enddate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'BAL',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "priority"       => '1',
+                           "reference"      => 'BAL',
+                           "paytype"        => null,                            
+                           "debit"          => $endbalance,
+                           "credit"         => null,
+                           "memo"           => 'Account Open Balance',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+   			
+                 $entertype++;
+	   			 
+                    try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enddate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'BAL',
+                           "bcoa"           => $bcoa,
+                           "account"        => '3000',
+                           "priority"       => null,
+                           "reference"      => 'BAL',
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $endbalance,
+                           "memo"           => 'Account Open Balance',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+       				
+   
+   recon($frm); 
+    
+    
+ }
+ 
+ 
+ 
+ function recon($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    //get the deposits 
+    $sql = "select * from tbl_genledger where active = '1' and reconcile is null and co_id = '$co' and account = '$account' and debit>0 order by enterdate, reference";
+         try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $deposit[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+  
+    
+    
+    
+    //get the withdrawls
+    $sql2 = "select * from tbl_genledger where active = '1' and reconcile is null and co_id = '$co' and account = '$account' and credit>0 order by enterdate, reference";
+             try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $withdrawl[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+
+    
+    require('templates/form_recon.ihtml');
+    
+ }
+ 
+ 
+ function complete($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm);
+    $ip = getIP();
+     ///insert recon entry 
+    
+     try   
+        {   
+            $data = array( "co_id"          => $co,
+                           "account"        => $account,
+                           "startbalance"   => $startbalance, 
+                           "startdate"      => $startdate, 
+                           "endbalance"     => $endbalance,
+                           "enddate"        => $enddate,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_reconcile", $data);   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+    
+    //get recon ID
+    $sql = "select max(id) as reconID from tbl_reconcile where co_id = '$co' and active = '1'"; 
+            try { 
+                    $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $reconID = $obj->reconID;                        
+                }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                }   
+    
+    
+    
+    
+    if(strlen($debitAdd)>1){
+    //debitAdd mark reconcile
+    $curDebitAdd = substr($debitAdd,1,strlen($debitAdd));
+    $curDebitAdd = explode(",",$curDebitAdd); 
+    
+    for($z=0;$z<count($curDebitAdd);$z++){
+        //update dep
+        try   
+        {   
+            $data = array( "reconcile"      => 1,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$curDebitAdd[$z]);   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo "debitAdd : Error --->";
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+        
+        //insert recon details
+        try
+        {
+            $data = array( "co_id"      =>  $co,
+                           "recon_id"   =>  $reconID, 
+                           "transid"    =>  $curDebitAdd[$z],
+                           "active"     =>  1 );
+        $rs = $dbh->obj_insert( "tbl_recondetails", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo "debitAdd : Error --->";
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }                   
+                           
+        
+        
+    } //end loop to update genledger
+     
+    
+    } //end if debitAdd
+    
+     if(strlen($creditAdd)>1){
+    //creditAdd mark reconcile
+    $curCreditAdd = substr($creditAdd,1,strlen($creditAdd));
+    $curCreditAdd = explode(",",$curCreditAdd); 
+    
+    for($z=0;$z<count($curCreditAdd);$z++){
+                    try   
+        {   
+            $data = array( "reconcile"      => 1,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$curCreditAdd[$z]);   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo "creditAdd : Error --->";
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+     
+     //insert recon details
+        try
+        {
+            $data = array( "co_id"      =>  $co,
+                           "recon_id"   =>  $reconID, 
+                           "transid"    =>  $curCreditAdd[$z],
+                           "active"     =>  1 );
+        $rs = $dbh->obj_insert( "tbl_recondetails", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo "debitAdd : Error --->";
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }    
+     
+        
+    } //end loop to update genledger
+     
+    
+    } //end if creditAdd
+    
+   
+        
+          
+    
+  
+  require('templates/form_rec_finish.ihtml');
+  
+    
+ }
+ 

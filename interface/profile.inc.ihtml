@@ -1,0 +1,88 @@
+<?
+  function edit($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+                            
+     try  
+    {  $rs = $dbh->obj_query( "select * from tbl_users u 
+                                join tbl_company c on u.user_id = c.user_id
+                                where c.active = '1' and c.id = '$co' and u.user_id = '$userID'" ); 
+             
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        $obj = $rs->obj_fetch_object();
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $company[$key] = $value;
+    }
+         
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        exit();
+    }  
+    
+    
+    
+    require('templates/form_profile.ihtml');
+    
+    
+    
+  }
+  
+function update($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    if(strlen($passwd1)>0){
+        if($passwd1 == $passwd2){
+            $passwd = passwdHash($passwd1);       
+        }
+     //update password 
+     
+     $data = array( "email"         =>  $email,
+                    "nameFirst"     =>  $nameFirst,
+                    "nameLast"      =>  $nameLast,
+                    "password"      =>  $passwd);   
+    
+    
+    } else {
+        
+     $data = array( "email"         =>  $email, 
+                    "nameFirst"     =>  $nameFirst,
+                    "nameLast"      =>  $nameLast);    
+        
+        
+    }
+    
+    try
+    {
+     $rs = $dbh->obj_update( "tbl_users", $data, "user_id=".$userID );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+    
+    
+ $frm['alert'] = '2';
+ $frm['err'] = 'User information updated...'; 
+ edit($frm); 
+    
+    
+    
+}  

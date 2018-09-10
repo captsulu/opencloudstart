@@ -1,0 +1,104 @@
+      <!-- footer content -->
+        <footer>
+          <div class="copyright-info">
+            <p class="pull-right">Open Cloud Start - Small Biz Accounting
+            </p>
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+    <!-- /footer content -->
+   
+   
+   </div>
+
+ </div> 
+
+    
+
+
+  <script src="js/bootstrap.min.js"></script>
+  
+  <!-- chart js -->
+  <script type="text/javascript" src="js/moment/moment.min.js"></script>
+  <script src="js/chartjs/chart.min.js"></script>
+  <!-- bootstrap progress js -->
+  <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
+  <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+  <!-- icheck -->
+  <script src="js/icheck/icheck.min.js"></script>
+  <!-- Select2 -->
+  <script src="vendors/select2/dist/js/select2.full.min.js"></script>
+
+  <script src="js/custom.js"></script>
+  <? if(basename($_SERVER['PHP_SELF']) == 'check.php'){?>
+  <!-- bootstrap-daterangepicker -->
+    <script src="vendors/moment/min/moment.min.js"></script>
+    <script src="vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <!-- bootstrap-datetimepicker -->    
+    <script src="vendors/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    
+    <script>
+    $('#myDatepicker').datetimepicker();
+    
+    $('#myDatepicker2').datetimepicker({
+        format: 'MM/DD/YYYY'
+    });
+    
+    </script>
+    
+  <? } ?>
+  
+
+  <!-- pace -->
+  <script src="js/pace/pace.min.js"></script>
+  <? if(basename($_SERVER['PHP_SELF']) == 'main.php'){?>
+  <!-- sparkline -->
+  <script src="js/sparkline/jquery.sparkline.min.js"></script>
+  
+  <script>
+    $('document').ready(function() {
+      $(".sparkline_one").sparkline([<?=$graphdep;?>], {
+        type: 'bar',
+        height: '50',
+        barWidth: 9,
+        colorMap: {
+          '7': '#a1a1a1'
+        },
+        barSpacing: 2,
+        barColor: '#26B99A'
+      });
+
+      $(".sparkline_two").sparkline([<?=$graphexp;?>], {
+        type: 'bar',
+        height: '50',
+        barWidth: 9,
+        colorMap: {
+          '7': '#a1a1a1'
+        },
+        barSpacing: 2,
+        barColor: '#26B99A'
+      });
+            
+      $(".sparkline_three").sparkline([<?=$revenueDisplay;?>], {
+        type: 'line',
+        width: '200',
+        height: '50',
+        lineColor: '#26B99A',
+        fillColor: 'rgba(223, 223, 223, 0.57)',
+        lineWidth: 2,
+        spotColor: '#26B99A',
+        minSpotColor: '#26B99A'
+      });
+      
+      
+      
+      
+      
+                                                
+    })
+  </script>
+  <? } ?>
+  
+</body>
+
+</html>

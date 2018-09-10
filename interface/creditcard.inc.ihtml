@@ -1,0 +1,920 @@
+<? 
+
+    function main($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+        
+   //variables needed
+    $depositAmt = "0.00";
+    $lineCnt = 2;
+    
+    $sql = "select * from tbl_coa where co_id = '$co' and active = '1' and type_id = '10' order by account";
+     
+    //echo $sql;
+    // bank accounts
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+    
+    $x=0;
+      while($obj = $rs->obj_fetch_object()){
+        foreach($obj as $key => $value){
+            $bank[$x][$key] = $value;
+            }
+          $x++;  
+        } 
+    }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //COAs to select charge for 
+              try  
+    {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' and type_id ='3' order by type_id, account" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+          foreach ($obj as $key => $value){
+               $coa[$x][$key] = $value;
+            }
+       $x++;
+       }
+    } catch ( Exception $e ){ 
+         
+        echo $dbh->obj_error_message();
+        die;
+    }    
+    
+    //get vendors 
+    $sql = "select * from tbl_vendors
+            where co_id = '$co' and active = '1' 
+             order by coname"; 
+     try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendor[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    
+    
+    require('templates/form_creditcard.ihtml');
+    
+ }
+ 
+ function lineadd($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+      //print_r($frm); 
+        //findpayments non-credit card
+ 
+    
+    //variables needed
+    $depositAmt = $creditAdd;
+    $lineCnt = $lineCnt + 1;
+    
+    $sql = "select * from tbl_coa where co_id = '$co' and active = '1' and type_id = '10' order by account";
+     
+    //echo $sql;
+    // bank accounts
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+    
+    $x=0;
+      while($obj = $rs->obj_fetch_object()){
+        foreach($obj as $key => $value){
+            $bank[$x][$key] = $value;
+            }
+          $x++;  
+        } 
+    }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //COAs to select Income 
+              try  
+    {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' and type_id = '3' order by type_id, account" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+          
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $coa[$x][$key] = $value;
+       }
+       $x++;
+       }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    }    
+    
+     //get vendors 
+    $sql = "select * from tbl_vendors
+            where co_id = '$co' and active = '1' 
+             order by coname"; 
+     try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendor[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    
+    
+    require('templates/form_creditcard.ihtml');
+    
+ }
+ 
+ function insert($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //print_r($frm); 
+    	      
+        
+                      //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = $bankAcct; 
+               $entertype = 1;        
+        
+        try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'CHG',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "vendorid"       => $vendorid,
+                           "priority"       => '1',
+                           "reference"      => $reference,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $creditAdd,
+                           "memo"           => $chargememo,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+        
+ 		//loop through the deposit breakdown
+        //loop through all 9 expense breakout items
+	   		for($a=0;$a<$lineCnt;$a++){
+	   			//make sure that account is not blank
+	   			if(strlen($account[$a])>0){
+	   			 
+                 $entertype++;
+	   			 
+                    try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'CHG',
+                           "bcoa"           => $bcoa,
+                           "account"        => $account[$a],
+                           "priority"       => null,
+                           "reference"      => $ref,
+                           "vendorid"       => $vendorid,                            
+                           "debit"          => $credit[$a] ,
+                           "credit"         => null,
+                           "memo"           => $memo[$a],
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+                 
+ 	  }//end account>0
+	   				
+    }//end loop	  
+ 
+ 
+    $frm['alert'] = 2;
+    $frm['err'] = 'Charge has been added...';
+    show($frm); 
+    
+ }
+ 
+ 
+ function show($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+     $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_genledger
+                            where active = '1' and histype = 'CHG' and co_id = '$co' and entertype = '1' 
+                        order by enterdate desc, entertime desc 
+                        $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_genledger
+                            where active = '1' and histype = 'CHG' and co_id = '$co' and entertype = '1' 
+                       ";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $charges[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    
+    require('templates/show_creditcard.ihtml');
+    
+    
+}
+
+
+function edit($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    $sql = "select * from tbl_genledger where active = '1' and co_id = '$co' and transid = '$id' and entertype=1 order by entertype asc";
+       try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $depositheader[$key] = $value;   
+            }
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    $transid = $depositheader['transid'];
+    $enterdate = $depositheader['enterdate'];
+    $bankAcct = $depositheader['bcoa'];
+    $vendorid = $depositheader['vendorid'];
+    $reference = $depositheader['reference'];
+    $depositAmt = $depositheader['credit'];
+    $creditAdd = $depositAmt;
+    $chargememo = $depositheader['memo'];
+    
+   
+    
+    $sql2 = "select * from tbl_genledger where active = '1' and co_id = '$co' and transid = '$id' and entertype>1 order by entertype asc";
+              try  
+    {  $rs = $dbh->obj_query( $sql2 ); 
+        
+        $lineCnt = $rs->obj_num_rows();
+        
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+              foreach ($obj as $key => $value){
+                $deposits[$x][$key] = $value;
+                    if($key == 'account'){
+                        $account[$x] = $value;
+                    }
+                    if($key == 'debit'){
+                        $credit[$x] = $value;
+                    }
+                    if($key == 'reference'){
+                        $ref[$x] = $value;
+                    }
+                    if($key == 'memo'){
+                        $memo[$x] = $value;
+                    }
+               }
+               $x++;
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    }  
+    
+    $lineCnt++;
+    
+        $sql = "select * from tbl_coa where co_id = '$co' and active = '1' and type_id = '10' order by account";
+     
+    //echo $sql;
+    // bank accounts
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+    
+    $x=0;
+      while($obj = $rs->obj_fetch_object()){
+        foreach($obj as $key => $value){
+            $bank[$x][$key] = $value;
+            }
+          $x++;  
+        } 
+    }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //COAs to select Income 
+              try  
+    {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' and type_id = '3' order by type_id, account" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+          
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $coa[$x][$key] = $value;
+       }
+       $x++;
+       }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    }    
+    
+      //get vendors 
+    $sql = "select * from tbl_vendors
+            where co_id = '$co' and active = '1' 
+             order by coname"; 
+     try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendor[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+ 
+    
+    $showValues = 1;
+    
+     
+    
+  require('templates/form_creditcard.ihtml');  
+    
+    
+    
+}
+
+
+function update($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //update existing deposit to change active = 0
+    //then insert deposit 
+    
+  
+             try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$transid );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+            //echo $rs->obj_affected_rows();  
+              
+        }  
+        catch ( Exception $e )   
+        {  
+            //log error and/or redirect user to error page  
+        } 
+    
+      
+                      //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = $bankAcct; 
+               $entertype = 1;        
+               
+       //deposit total credit to Bank Account  
+                
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'CHG',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "priority"       => '1',
+                           "reference"      => $reference,
+                           "vendorid"       => $vendorid,                            
+                           "debit"          => null,
+                           "credit"         => $creditAdd,
+                           "memo"           => $chargememo,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+   			
+   			
+   			
+   		//loop through the deposit breakdown
+        //loop through all 9 expense breakout items
+	   		for($a=0;$a<$lineCnt;$a++){
+	   			//make sure that account is not blank
+	   			if(strlen($account[$a])>0){
+	   			 
+                 $entertype++;
+	   			 
+                    try   
+        {   
+             $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'CHG',
+                           "bcoa"           => $bcoa,
+                           "account"        => $account[$a],
+                           "priority"       => null,
+                           "reference"      => $ref,
+                           "vendorid"       => $vendorid,                            
+                           "debit"          => $credit[$a] ,
+                           "credit"         => null,
+                           "memo"           => $memo[$a],
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+                 
+ 	  }//end account>0
+	   				
+    }//end loop	   			
+    
+    $frm['alert'] = 2;
+    $frm['err'] = 'Charge has been updated...';
+    show($frm); 
+    
+    
+    
+}
+
+function trash($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+  
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+
+ show($frm);   
+    
+    
+ }
+
+
+
+function pay($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm);
+    $paymentAmt = 0;
+    
+        $sql = "select * from tbl_coa where co_id = '$co' and active = '1' and type_id = '10' order by account";
+     
+    //echo $sql;
+    // bank accounts
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+    
+    $x=0;
+      while($obj = $rs->obj_fetch_object()){
+        foreach($obj as $key => $value){
+            $chgbank[$x][$key] = $value;
+            }
+          $x++;  
+        } 
+    }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+        $sql = "select * from tbl_coa where co_id = '$co' and active = '1' and type_id = '4' order by account";
+     
+    //echo $sql;
+    // bank accounts
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+    
+    $x=0;
+      while($obj = $rs->obj_fetch_object()){
+        foreach($obj as $key => $value){
+            $bank[$x][$key] = $value;
+            }
+          $x++;  
+        } 
+    }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+     
+    //get charges
+    $sql = "select * from tbl_genledger where active = '1' and  co_id = '$co' and histype = 'CHG' and ccpay is null and credit>0
+order by enterdate desc, entertime desc "; 
+
+     try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $charges[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    
+    
+    
+    require('templates/form_ccpay.ihtml');  
+    
+}
+
+function ccpayinsert($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+      
+                      //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = $chargeAcct; 
+               $entertype = 1;        
+        
+    //insert payment
+      try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'PMT',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bankAcct,
+                           "reference"      => 'PMT-'.$transid,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $amount,
+                           "memo"           => 'credit card credit',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+       
+       $entertype++;
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'PMT',
+                           "bcoa"           => $bcoa,
+                           "account"        => $chargeAcct,
+                           "reference"      => 'PMT-'.$transid,
+                           "paytype"        => null,                            
+                           "debit"          => $amount,
+                           "credit"         => null,
+                           "memo"           => 'credit card credit',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        } 
+    
+    
+    //update ccpay flag in genledger
+    
+    
+    $transSelect = substr($transSelect,1,strlen($transSelect));
+    $invoiceSel = explode(",",$transSelect);
+    $invoiceSelCnt = count($invoiceSel);
+    
+     for($i=0;$i<$invoiceSelCnt;$i++){
+        $genledgeID = $invoiceSel[$i];
+        
+         
+            try  
+        {  
+            $data = array( 
+                           "ccpay"      => 1,
+                           "lastupdate" => date("Y-m-d H:i:s"), 
+                           "lastuser" => $userID );  
+              
+            $rs = $dbh->obj_update( "tbl_genledger", $data, "id=".$genledgeID );  
+              
+            if ( $dbh->obj_error() )  
+                throw new Exception( $dbh->obj_error_message() );  
+                  
+            //echo $rs->obj_affected_rows();  
+              
+        }  
+        catch ( Exception $e )   
+        {  
+            //log error and/or redirect user to error page  
+        } 
+        
+     }
+   
+  $frm['alert'] = 2;
+  $frm['err'] = 'Credit Card Payment Posted...';   
+  main($frm);      
+        
+}
+
+

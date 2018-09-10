@@ -1,0 +1,98 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Chart of Accounts</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="coa"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Chart of Account</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="coaadmin" method="POST">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="id" value="<?=$id?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } ?>
+                             <div class="row">
+                        <div class="col-xs-6">
+                            <label>Account Type</label>
+                            <select name="type_id" class="form-control" <?if(isset($showValues)){ echo "disabled=\"\"";}?> >
+                                <? for($a=0;$a<count($type);$a++){ ?>
+                                    <option value="<?=$type[$a]['id'];?>" <?isSelected($coa['type_id'],$type[$a]['id']);?> ><?=$type[$a]['name'];?></option>
+                                    
+                                <? } ?>
+                            
+                            
+                            </select>
+                            
+                        
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Parent Group</label>
+                            <select name="group_id" class="form-control" <?if(isset($showValues)){ echo "disabled=\"\"";}?> >
+                                <? for($a=0;$a<count($group);$a++){ ?>
+                                    <option value="<?=$group[$a]['id'];?>" <?isSelected($coa['group_id'],$group[$a]['id']);?> ><?=$group[$a]['account'];?> - <?=$group[$a]['name'];?></option>
+                                    
+                                <? } ?>
+                            
+                            
+                            </select>
+                            
+                        
+                        </div>
+                        
+                    
+                    </div> 
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <label>Account</label><br />
+                            <input type="text" name="account" value="<?=$coa['account'];?>" class="form-control" <?if(isset($showValues)){ echo "disabled=\"\"";} else { echo "required=\"\""; }?> pattern="[1-9]{1}[0-9]{3}" />
+                            
+                        </div>
+                        <div class="col-xs-9">
+                            <label>Name</label><br />
+                            <input type="text" name="name" value="<?=$coa['name'];?>" class="form-control" placeholder="Account Name" required="" />
+                        </div>
+                    </div>
+                  
+                    
+                  
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            

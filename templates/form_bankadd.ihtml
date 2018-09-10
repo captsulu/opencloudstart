@@ -1,0 +1,73 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Chart of Accounts</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="coa"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add Bank Account</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="bankadd" method="POST">
+                    
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                     <div class="row">
+                        <div class="col-xs-3">
+                            <label>Primary COA Account</label><br />
+                            <input type="text" name="account" value="<?=$coa['account'];?>" class="form-control" required="" pattern="[1-9]{1}[0-9]{3}" />
+                            
+                        </div>
+                        <div class="col-xs-9">
+                            <label>Name</label><br />
+                            <input type="text" name="name" value="<?=$coa['name'];?>" class="form-control" placeholder="Account Name" required="" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <label>Opening Date</label><br />
+                            <input type="text" name="enterdate" value="<?=date("m/d/Y");?>" placeholder="Date" required="" class="form-control" />
+                        </div>
+                        <div class="col-xs-3">
+                            <label>Opening Balance</label><br />
+                            <input type="text" name="balance" value="" placeholder="0.00" required="" class="form-control"  pattern="^\d*(\.\d{2}$)?"/>
+                        </div>
+                    
+                    </div>
+                    <p>Bank Accounts in a standard COA list should range from 1000-1199 not to duplicate an already existing number. The Opening Date Should match the initial deposit amount to the acocunt. 
+                    If the account already exists enter the begining balance of your last statment. Keep in mind any outstanding deposits and checks should be entered after opening the account. </p>
+                    
+                  
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            

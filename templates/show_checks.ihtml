@@ -1,0 +1,126 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Expenses</h3>
+              </div>
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                <form action="vendor" method="POST">
+                    <input type="hidden" name="mode" value="find" />
+                  <div class="input-group">
+                    <input type="text" name="name" class="form-control" placeholder="Search for..." />
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" onclick="submit();">Go!</button>
+                    </span>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Checks</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a href="check" class="btn btn-default"><i class="fa fa-plus"></i> Add </a></li>  
+                      <li><a href="main" class="btn btn-default" ><i class="fa fa-reply"></i> Back </a></li>
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                    <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                    
+                  </div>
+                  <div class="x_content">
+                      <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th class="col-xs-2">Enter Date</th>
+                           <th class="col-xs-2">Ref</th>
+                           <th class="col-xs-3">Vendor</th>
+                           <th class="col-xs-4">Description</th>
+                           <th>*</th>
+                           <th class="col-xs-2">Amount</th>
+                           <th><i class="fa fa-caret-down"></i></th>
+                           
+                           
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                       <? //print_r($checks); ?>
+                       <? for($a=0;$a<count($checks);$a++){ ?>
+                       <tr>
+                            <td><a href="check?mode=edit&id=<?=$checks[$a]['transid'];?>"><?=retrieve_date($checks[$a]['enterdate']);?></a></td>
+                            <td><a href="check?mode=edit&id=<?=$checks[$a]['transid'];?>"><?=$checks[$a]['reference'];?></a></td>
+                            <td><a href="check?mode=edit&id=<?=$checks[$a]['transid'];?>"><?=$checks[$a]['coname'];?></a></td>
+                            <td><a href="check?mode=edit&id=<?=$checks[$a]['transid'];?>"><?=$checks[$a]['memo'];?></a></td>
+                            <td><? if($checks[$a]['reconcile'] == '1'){ echo "&sect;"; };?></td>
+                            <td><a href="check?mode=edit&id=<?=$checks[$a]['transid'];?>"><?=$checks[$a]['credit'];?></a></td>
+                            <td><a href="check?mode=trash&transid=<?=$checks[$a]['transid'];?>" data-toggle="tooltip" data-placement="top" title="Delete Entry" onclick="return confirm('Are you sure you wish to Delete?')" ><i class="fa fa-trash"></i></a></td>
+                            
+                       
+                       </tr>
+                            
+                       <? } ?> 
+                      
+                      </tbody>
+                      </table>
+                      
+                  </div>
+                  <div class="box-footer">
+                  
+                 <? if(!isset($page)){ $page = '0';}; ?>
+                 <div class="pagination-sm inline pull-left">
+                <h5><?=$records;?> Records  Page <?=$page+1;?> of <?=ceil($records/$perpage);?></h5>
+                </div>
+                
+                <div class="box-tools pull-right">
+                    <ul class="pagination pagination-sm inline">
+                    <? if(isset($page) && $page>0){ ?>
+                     <li><a href="check?mode=show&page=<?=$page-1;?>">&laquo;</a></li>
+                    <? } ?>
+                    <? if($records>$perpage){
+                         $totpages = ceil($records/$perpage);
+                         if($totpages<=$tabs){ $newtabs = $totpages; } else { $newtabs = $tabs; }
+                         
+                         $tabcnt = 1;
+                         while($tabcnt <= $newtabs){
+                            echo "<li><a href=\"check?mode=show&page=".($tabcnt-1)."\">".$tabcnt."</a></li>";
+                            $tabcnt++;
+                         }
+                    }
+                    ?>
+                     <li><a href="check?mode=show&page=<?=$page+1;?>">&raquo;</a></li>
+                     </ul>
+                  </div>
+                
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        

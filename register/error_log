@@ -1,0 +1,15 @@
+[05-Sep-2018 18:54:32 America/New_York] PHP Notice:  Undefined variable: username in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 11
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: passwd1 in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 34
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: passwd2 in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 34
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: passwd1 in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 44
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: username in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 56
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: email in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 58
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: nameFirst in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 59
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: nameLast in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 60
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: companyName in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 106
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: fein in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 107
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: salestax in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 108
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: email in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 136
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: nameFirst in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 153
+[05-Sep-2018 18:54:33 America/New_York] PHP Notice:  Undefined variable: nameFirst in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 158
+[10-Sep-2018 02:38:05 America/New_York] PHP Notice:  Undefined variable: username in /home/newageto/public_html/app.opencloudstart.com/register/register.php on line 9

@@ -1,0 +1,213 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Expenses</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Vendor</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="vendor"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Vendor</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="vendor" method="POST">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="id" value="<?=$id?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } ?>
+                    <div class="col-xs-12">
+                        <label>Company Name</label>
+                        <input type="text" name="coname" value="<?=$vendor['coname'];?>" placeholder="Company Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>First Name</label>
+                        <input type="text" name="nameFirst" value="<?=$vendor['nameFirst'];?>" placeholder="First Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Last Name</label>
+                        <input type="text" name="nameLast" value="<?=$vendor['nameLast'];?>" placeholder="Last Name" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Billing Address</label>
+                        <input type="text" name="address1" value="<?=$vendor['address1'];?>" placeholder="Address" class="form-control" />
+                    </div>   
+                    <div class="col-xs-12">
+                        <input type="text" name="address2" value="<?=$vendor['address2'];?>" placeholder="Ste/RR/Apt" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" name="city" value="<?=$vendor['city'];?>" placeholder="City" class="form-control" />
+                    </div>
+                    <div class="col-xs-2">
+                        <input type="text" name="state" value="<?=$vendor['state'];?>" placeholder="State" class="form-control" />
+                    </div>
+                    <div class="col-xs-4">
+                        <input type="text" name="zip" value="<?=$vendor['zip'];?>" placeholder="Zip/Postal" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Shipping Address</label>
+                        <input type="text" name="sh_address1" value="<?=$vendor['sh_address1'];?>" placeholder="Address" class="form-control" />
+                    </div>   
+                    <div class="col-xs-12">
+                        <input type="text" name="sh_address2" value="<?=$vendor['sh_address2'];?>" placeholder="Ste/RR/Apt" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" name="sh_city" value="<?=$vendor['sh_city'];?>" placeholder="City" class="form-control" />
+                    </div>
+                    <div class="col-xs-2">
+                        <input type="text" name="sh_state" value="<?=$vendor['sh_state'];?>" placeholder="State" class="form-control" />
+                    </div>
+                    <div class="col-xs-4">
+                        <input type="text" name="sh_zip" value="<?=$vendor['sh_zip'];?>" placeholder="Zip/Postal" class="form-control" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Contact Information</label>
+                        <input type="email" name="email" value="<?=$vendor['email'];?>" placeholder="Email" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Phone</label>
+                        <input type="text" name="phone" value="<?=$vendor['phone'];?>" placeholder="Phone" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Cell Phone</label>
+                        <input type="text" name="cellphone" value="<?=$vendor['cellphone'];?>" placeholder="Cell Phone" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Tax ID  FEIN/Social Security</label>
+                        <input type="text" name="taxid" value="<?=$vendor['taxid'];?>" placeholder="Tax ID" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Track for 1099s</label><br />
+                        <input type="checkbox" name="w9" value="1" <?isChecked(1,$vendor['w9']);?> /> Track this Vendor for 1099
+                    </div>
+                    
+                  
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Documents Attached</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 
+                 <div class="col-xs-3">
+                      <!-- required for floating -->
+                      <!-- Nav tabs -->
+                      <ul class="nav nav-tabs tabs-left">
+                        <li class="active"><a href="#home" data-toggle="tab">Transactions</a>
+                        </li>
+                        <li><a href="#profile" data-toggle="tab">Documents</a>
+                        </li>
+                        <li><a href="#messages" data-toggle="tab">Upload</a>
+                        </li>
+                        <li><a href="#settings" data-toggle="tab">Settings</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="col-xs-9">
+                      <!-- Tab panes -->
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="home">
+                          <p class="lead">Transactions</p>
+                           <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date</th>
+                           <th>Ref</th>
+                           <th>Description</th>
+                           <th>Amount</th>
+                         </tr>
+                      </thead>
+                        <tbody>
+                        <? //print_r($trans);?>
+                        <? for($a=0;$a<count($trans);$a++){ ?>
+                            <tr>
+                                <td><?=retrieve_date($trans[$a]['enterdate']);?></td>
+                                <td><?=$trans[$a]['reference'];?></td>
+                                <td><?=$trans[$a]['memo'];?></td>
+                                <td><?=number_money($trans[$a]['debit']);?></td>
+                            </tr>      
+                        
+                        
+                        
+                        <? } ?>
+                      
+                        </tbody>
+                      </table>
+                          
+                        </div>
+                        <div class="tab-pane" id="profile">
+                        <p class="lead">Documents Uploaded</p>
+                        <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date</th>
+                           <th>Name</th>
+                           
+                         </tr>
+                      </thead>
+                        <tbody>
+                        
+                      
+                      
+                      
+                        </tbody>
+                      </table>
+                        
+                        
+                        </div>
+                        <div class="tab-pane" id="messages">
+                        <p>Drag multiple files to the box below for multi upload or click to select files.</p>
+                        <form action="form_upload.html" class="dropzone">Drag and Drop Files Here</form></div>
+                        <div class="tab-pane" id="settings">Settings</div>
+                      </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+                </div>
+              </div>
+            </div>

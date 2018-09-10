@@ -1,0 +1,1466 @@
+<? 
+
+    function main($frm){
+        global $settings, $dbh;
+        extract($frm); 
+        
+        
+     
+          $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select i.*, c.displayname, c.email from tbl_invoice i 
+                	left join tbl_customers c on i.customer_id = c.id
+                where i.co_id = '$co' and i.active = '1' 
+                order by i.create_date desc, i.id desc
+                $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_invoice where co_id = '$co' and active = '1' ";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    require('templates/show_invoice.ihtml');    
+        
+    }
+    
+    
+ function find($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+     $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select i.*, c.displayname, c.email from tbl_invoice i 
+                	left join tbl_customers c on i.customer_id = c.id
+                where i.co_id = '$co' and i.active = '1' and c.displayname like '%$$displayname%'
+                order by i.create_date desc, i.id desc
+                $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_invoice where co_id = '$co' and active = '1' ";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    require('templates/show_invoice.ihtml');    
+        
+    }  
+    
+    
+    
+function trash($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+        
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_invoice", $data, "id=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+    die;
+    //log error and/or redirect user to error page  
+}   
+
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_invdetail", $data, "invoice_id=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+    die;
+    //log error and/or redirect user to error page  
+} 
+
+        $frm['alert'] = '2'; 
+        $frm['err'] = 'invoice has been removed...';
+        
+        main($frm); 
+        return;   
+    
+    
+}
+
+
+function add($frm){
+    global $settings, $dbh; 
+    extract($frm);
+    
+    $customer = '';
+    
+    //create blank invoice number 
+    try   
+{   
+    $data = array( 
+                   "co_id"        => $co,   
+                   "create_date"  => date("Y-m-d"),   
+                   "lastupdate"   => date("Y-m-d H:i:s"),   
+                   "lastuser"     => $userID,   
+                   "active"       => '1');   
+       
+    $rs = $dbh->obj_insert( "tbl_invoice", $data );   
+       
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+     
+     try
+     { $rs = $dbh->obj_query("select max(id) as invoiceID from tbl_invoice where co_id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $invoiceID = $obj->invoiceID;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    }     
+    
+    //get sales tax rate
+     try
+     { $rs = $dbh->obj_query("select salestax from tbl_company where id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $taxrate = $obj->salestax;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    }     
+       
+    $sql2 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where co_id = '$co' and active = '1' order by displayname"; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customers[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerVar = json_encode($customers);
+    
+    //echo $customerVar;
+    
+    //lineCnt
+    $lineCnt = 1;
+    
+    
+    require('templates/form_invoice.ihtml'); 
+    
+}
+
+
+function additem($frm){
+    global $settings, $dbh;
+    extract($frm);
+
+    //print_r($frm); 
+
+     $sql = "select id, name, price, taxable from tbl_products where co_id = '$co' and active='1' and (category_id = '1' or count>0) order by name";
+     try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $products[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $productsVar = json_encode($products);
+    
+            try  
+    {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' and type_id = '1' order by type_id, account" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+         foreach ($obj as $key => $value){
+            $coa[$x][$key] = $value;
+           }
+           $x++;
+           }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    }   
+    
+    $price = 0;
+    
+    require('templates/form_invoice_item.ihtml');
+
+}
+
+function iteminsert($frm){
+    global $settings, $dbh; 
+    extract($frm);
+    
+   
+    
+    //get the details of the product to insert into the invoice 
+    $sql = "select name, category_id from tbl_products where co_id = '$co' and id = '$itemID'";
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $product[$key] = $value;   
+            }
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    } 
+    
+    
+     try   
+{   
+    $data = array( "invoice_id"   => $invoiceID,
+                   "account"      => $account,   
+                   "itemtype"     => $product['category_id'],
+                   "item_id"      => $itemID,
+                   "description"  => $product['name'],
+                   "taxable"      => $newtaxable,
+                   "quantity"     => $newqty,
+                   "amountdue"    => $newprice,      
+                   "create_date"  => date("Y-m-d"),   
+                   "lastupdate"   => date("Y-m-d H:i:s"),   
+                   "lastuser"     => $userID,   
+                   "active"       => '1');   
+       
+    $rs = $dbh->obj_insert( "tbl_invdetail", $data );  
+    
+           
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page  
+            echo $dbh->obj_error_message();
+            die; 
+        }
+    
+  //repaint invoice screen get all the details inserted
+   $sql = "select * from tbl_invdetail where invoice_id = '$invoiceID' and active = '1'";
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             if($key == 'id'){
+                $items[] = $value;
+             }   
+             if($key == 'quantity'){
+                $qty[] = $value;
+             }
+             if($key == 'description'){
+                $descript[] = $value;
+             }
+             if($key == 'amountdue'){
+                $Amt[] = $value;
+             }
+             if($key == 'taxable'){
+                $taxable[] = $value;
+             }   
+            }
+            
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    } 
+    
+  //print_r($items); 
+  //print_r($qty);
+  //print_r($descript);
+  //print_r($Amt);
+  //print_r($taxable);  
+  //print_r($frm); 
+ //die;   
+  
+  
+  if(!isset($taxrate)){
+     try
+     { $rs = $dbh->obj_query("select salestax from tbl_company where id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $taxrate = $obj->salestax;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+  }
+  
+  $subtotal = 0;
+  $salestax = 0;
+  $grandtotal = 0;
+  //echo $lineCnt;
+  //echo count($items);
+  
+  for($z=0;$z<count($items);$z++){
+    //echo "(Qty:".$qty[$z]." x ".$Amt[$z].")";
+    
+    $ExtAmt[$z] = $qty[$z] * $Amt[$z];
+    //echo "=".$ExtAmt[$z]."::";
+    
+    $subtotal = $subtotal + ($qty[$z] * $Amt[$z]);
+    if($taxable[$z] == '1'){
+       $salestax = $salestax + round(($taxrate *($qty[$z] * $Amt[$z])),2); 
+    }
+     
+  }
+  
+  $grandtotal = $subtotal + $salestax;
+  $lineCnt = $lineCnt + 1; //add an extra line to add more items to invoice
+  
+  //echo "SubTotal:".$subtotal;
+  //echo "SalesTax:".$salestax;
+  //echo "grandtotal:".$grandtotal;
+  //echo "lineCnt:".$lineCnt;
+  
+  //die;
+  
+  
+  
+  $sql2 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where co_id = '$co' and active = '1' order by displayname"; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customers[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerVar = json_encode($customers);
+    
+    $sql3 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where id = '$customer' "; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql3 );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customerInfo[$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerDisplay = "<b>".$customerInfo['displayname']."</b><br/>".$customerInfo['bill_address1']."<br/>".$customerInfo['bill_city'].", ".$customerInfo['bill_state']." ".$customerInfo['bill_zip'];
+    
+  
+  require('templates/form_invoice.ihtml');
+    
+}
+
+function rmitem($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+ if(isset($ID) && $ID>0){ 
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_invdetail", $data, "id=".$ID);  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+    die;
+    //log error and/or redirect user to error page  
+} 
+}
+if(!isset($lineCnt)){
+    $lineCnt = 1;
+}  
+  
+//repaint invoice screen get all the details inserted
+//get sales tax rate
+     try
+     { $rs = $dbh->obj_query("select salestax from tbl_company where id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $taxrate = $obj->salestax;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    }  
+
+
+   $sql = "select * from tbl_invdetail where invoice_id = '$invoiceID' and active = '1'";
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             if($key == 'id'){
+                $items[] = $value;
+             }   
+             if($key == 'quantity'){
+                $qty[] = $value;
+             }
+             if($key == 'description'){
+                $descript[] = $value;
+             }
+             if($key == 'amountdue'){
+                $Amt[] = $value;
+             }
+             if($key == 'taxable'){
+                $taxable[] = $value;
+             }   
+            }
+            
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    } 
+  
+  $subtotal = 0;
+  $salestax = 0;
+  $grandtotal = 0;
+  //echo $lineCnt;
+  //echo count($items);
+  
+  for($z=0;$z<count($items);$z++){
+    //echo "(Qty:".$qty[$z]." x ".$Amt[$z].")";
+    
+    $ExtAmt[$z] = $qty[$z] * $Amt[$z];
+    //echo "=".$ExtAmt[$z]."::";
+    
+    $subtotal = $subtotal + ($qty[$z] * $Amt[$z]);
+    if($taxable[$z] == '1'){
+       $salestax = $salestax + round(($taxrate *($qty[$z] * $Amt[$z])),2); 
+    }
+     
+  }
+  
+  $grandtotal = $subtotal + $salestax;
+  
+  
+  $sql2 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where co_id = '$co' and active = '1' order by displayname"; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customers[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerVar = json_encode($customers);
+    
+    $sql3 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where id = '$customer' "; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql3 );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customerInfo[$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerDisplay = "<b>".$customerInfo['displayname']."</b><br/>".$customerInfo['bill_address1']."<br/>".$customerInfo['bill_city'].", ".$customerInfo['bill_state']." ".$customerInfo['bill_zip'];
+    
+  
+  require('templates/form_invoice.ihtml');
+    
+}
+
+function lineadd($frm){ 
+    global $settings, $dbh; 
+    extract($frm);
+    
+    
+    if(isset($lineCnt)){
+        if($lineCnt == 0){
+            $lineCnt = 1;
+        } else {
+        $lineCnt = $lineCnt+1;
+        }
+    } else {
+        $lineCnt = 1;
+    }
+    
+    
+   //repaint invoice screen get all the details inserted
+   $sql = "select * from tbl_invdetail where invoice_id = '$invoiceID' and active = '1'";
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             if($key == 'id'){
+                $items[] = $value;
+             }   
+             if($key == 'quantity'){
+                $qty[] = $value;
+             }
+             if($key == 'description'){
+                $descript[] = $value;
+             }
+             if($key == 'amountdue'){
+                $Amt[] = $value;
+             }
+             if($key == 'taxable'){
+                $taxable[] = $value;
+             }   
+            }
+            
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    } 
+    
+  if(!isset($taxrate)){
+     try
+     { $rs = $dbh->obj_query("select salestax from tbl_company where id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $taxrate = $obj->salestax;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+  }  
+    
+  
+   
+  $subtotal = 0;
+  $salestax = 0;
+  $grandtotal = 0;
+  for($z=0;$z<$lineCnt;$z++){
+    $ExtAmt[$z] = $qty[$z] * $Amt[$z];
+    $subtotal = $subtotal + ($qty[$z] * $Amt[$z]);
+    if($taxable[$z] == '1'){
+       $salestax = $salestax + ($taxrate *($qty[$z] * $Amt[$z])); 
+    }
+     
+  }
+  
+  $grandtotal = $subtotal + $salestax;
+  
+  
+  $sql2 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where co_id = '$co' and active = '1' order by displayname"; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customers[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerVar = json_encode($customers);
+    
+    $sql3 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where id = '$customer' "; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql3 );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customerInfo[$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerDisplay = "<b>".$customerInfo['displayname']."</b><br/>".$customerInfo['bill_address1']."<br/>".$customerInfo['bill_city'].", ".$customerInfo['bill_state']." ".$customerInfo['bill_zip'];
+    
+  
+  require('templates/form_invoice.ihtml');
+    
+} 
+
+
+function insert($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    //print_r($frm);
+   //update the invoice information  
+        try   
+{   
+    $data = array( "customer_id"  => $customer,
+                   "total"        => $grandtotal,
+                   "salestax"     => $salestax,
+                   "subtotal"     => $subtotal,      
+                   "lastupdate"   => date("Y-m-d H:i:s"),   
+                   "lastuser"     => $userID,   
+                   "active"       => '1');   
+    //print_r($data);   
+    $rs = $dbh->obj_update( "tbl_invoice", $data, "id=".$invoiceID );  
+    
+           
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page  
+            echo $dbh->obj_error_message();
+            die; 
+        }
+        
+   //get the salestax COA
+   $sql = "select salestaxcoa from tbl_company where id = '$co' and active = '1'";
+    try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $salestaxcoa = $obj->salestaxcoa;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+        
+        
+   //enter the accounting line items for the sale of the invoice. 
+          //acct receivable
+     
+                      //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = '1200'; 
+               $entertype = 1;        
+               
+                
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'INV',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => $grandtotal,
+                           "credit"         => null,
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data);  
+       
+       
+           $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }  
+        
+        //sales by account in invoice 
+        
+        $sql = "select invoice_id, account, sum(amountdue) as amount  from tbl_invdetail where invoice_id = '$invoiceID' 
+                group by account";
+        
+          
+                try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+          
+          
+       for($i=0;$i<count($invoice);$i++){
+        
+               try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'INV',
+                           "bcoa"           => $bcoa,
+                           "account"        => $invoice[$i]['account'],
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $invoice[$i]['amount'],
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+        
+        
+        
+       $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }  
+          
+          
+     } //i loop
+     
+     //Add Sales Tax entry into ledger
+     $sql = "select * from tbl_invoice where id = '$invoiceID'"; 
+          
+               
+                try  
+    {  $rs = $dbh->obj_query( $sql );
+       while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$key] = $value;   
+            }
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+        
+              try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'TAX',
+                           "bcoa"           => $bcoa,
+                           "account"        => $salestaxcoa,
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $invoice['salestax'],
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+        
+        
+        
+       $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }     
+          
+          
+   
+   //may want to re-direct to invoice payment in the future 
+    $frm['alert'] = 2;
+    $frm['err'] = "Invoice has been added...";
+    main($frm); 
+    
+}
+
+
+function edit($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $showValues = 1; 
+    //echo "ID: ".$id;
+    //get invoice information
+    $sql = "select * from tbl_invoice where id = '$id'"; 
+      try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoiceEdit[$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    //print_r($invoiceEdit); 
+    //die;
+    $customer = $invoiceEdit['customer_id'];
+    
+     
+     try
+     { $rs = $dbh->obj_query("select * from tbl_invdetail where invoice_id = '$id' and active = '1'");
+      $lineCnt = $rs->obj_num_rows();  
+     
+       while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             if($key == 'id'){
+                $items[] = $value;
+             }   
+             if($key == 'quantity'){
+                $qty[] = $value;
+             }
+             if($key == 'description'){
+                $descript[] = $value;
+             }
+             if($key == 'amountdue'){
+                $Amt[] = $value;
+             }
+             if($key == 'taxable'){
+                $taxable[] = $value;
+             }   
+            }
+            
+        }
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    }     
+    $invoiceID = $id;
+    
+    //Get taxrate
+    
+    if(!isset($taxrate)){
+     try
+     { $rs = $dbh->obj_query("select salestax from tbl_company where id = '$co' and active = '1'");
+       $obj = $rs->obj_fetch_object(); 
+       $taxrate = $obj->salestax;
+     } catch ( Exception $e ) { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+  }
+  
+  //get 
+  //print_r($items); 
+  //print_r($qty);
+  //print_r($descript);
+  //print_r($Amt);
+  //print_r($taxable);  
+  //print_r($frm); 
+ //die;   
+  
+    
+  $subtotal = 0;
+  $salestax = 0;
+  $grandtotal = 0;
+  //echo "LineCnt:".$lineCnt;
+  //echo count($items);
+  
+  for($z=0;$z<count($items);$z++){
+    //echo "(Qty:".$qty[$z]." x ".$Amt[$z].")";
+    
+    $ExtAmt[$z] = $qty[$z] * $Amt[$z];
+    //echo "=".$ExtAmt[$z]."::";
+    
+    $subtotal = $subtotal + ($qty[$z] * $Amt[$z]);
+    if($taxable[$z] == '1'){
+       $salestax = $salestax + round(($taxrate *($qty[$z] * $Amt[$z])),2); 
+    }
+     
+  }
+  
+  $grandtotal = $subtotal + $salestax;
+  
+  
+  $sql2 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where co_id = '$co' and active = '1' order by displayname"; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customers[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    $customerVar = json_encode($customers);
+    
+    $sql3 = "select id, displayname, bill_address1, bill_address2, bill_city, bill_state, bill_zip, bill_country  from tbl_customers where id = '$customer' "; 
+    
+     try  
+    {  $rs = $dbh->obj_query( $sql3 );
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $customerInfo[$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    
+    $customerDisplay = "<b>".$customerInfo['displayname']."</b><br/>".$customerInfo['bill_address1']."<br/>".$customerInfo['bill_city'].", ".$customerInfo['bill_state']." ".$customerInfo['bill_zip'];
+    
+    
+  
+  require('templates/form_invoice.ihtml');
+    
+}
+
+
+function update($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //update invoice table 
+    
+    //print_r($frm); 
+    
+    //update invoice itself
+     
+        try   
+{   
+    $data = array( "customer_id"  => $customer,
+                   "total"        => $grandtotal,
+                   "salestax"     => $salestax,
+                   "subtotal"     => $subtotal,      
+                   "lastupdate"   => date("Y-m-d H:i:s"),   
+                   "lastuser"     => $userID,   
+                   "active"       => '1');   
+       
+    $rs = $dbh->obj_update( "tbl_invoice", $data, "id=".$invoiceID );  
+    
+           
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page  
+            echo $dbh->obj_error_message();
+            die; 
+        }
+        
+        
+     //deactivate old invoice information from genledger
+     
+             try   
+{   
+    $data = array( "lastupdate"   => date("Y-m-d H:i:s"),   
+                   "lastuser"     => $userID,   
+                   "active"       => '0');   
+       
+    $rs = $dbh->obj_update( "tbl_invoice", $data, "reference=".$invoiceID." and histype in ('INV','TAX')" );  
+    
+           
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page  
+            echo $dbh->obj_error_message();
+            die; 
+        }
+    
+  
+     //get the salestax COA
+   $sql = "select salestaxcoa from tbl_company where id = '$co' and active = '1'";
+    try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $salestaxcoa = $obj->salestaxcoa;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+        
+        
+   //enter the accounting line items for the sale of the invoice. 
+          //acct receivable
+     
+                      //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = '1200'; 
+               $entertype = 1;        
+               
+                
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'INV',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => $grandtotal,
+                           "credit"         => null,
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data);  
+       
+       
+           $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }  
+        
+        //sales by account in invoice 
+        
+        $sql = "select invoice_id, account, sum(amountdue) as amount  from tbl_invdetail where invoice_id = '$invoiceID' 
+                group by account";
+        
+          
+                try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+          
+          
+       for($i=0;$i<count($invoice);$i++){
+        
+               try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'INV',
+                           "bcoa"           => $bcoa,
+                           "account"        => $invoice[$i]['account'],
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $invoice[$i]['amount'],
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+        
+        
+        
+       $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }  
+          
+          
+     } //i loop
+     
+     //Add Sales Tax entry into ledger
+     $sql = "select * from tbl_invoice where id = '$invoiceID'"; 
+          
+               
+                try  
+    {  $rs = $dbh->obj_query( $sql );
+       while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$key] = $value;   
+            }
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+        
+              try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => date("Y-m-d"),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'TAX',
+                           "bcoa"           => $bcoa,
+                           "account"        => $salestaxcoa,
+                           "priority"       => null,
+                           "reference"      => $invoiceID,
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $invoice['salestax'],
+                           "memo"           => 'Invoice: '.$invoiceID,
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+        
+        
+        
+       $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }     
+                
+        
+        
+        
+        
+        
+   
+   //may want to re-direct to invoice payment in the future 
+    main($frm); 
+    
+}

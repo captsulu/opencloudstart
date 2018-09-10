@@ -1,0 +1,112 @@
+<? 
+    //setup constants
+  function safe_session_start() {
+    # Attempt to start a session
+    if (!@\session_start()) return false;
+
+    #
+    # Check if we need to perform
+    # the write test.
+    #
+    if (!isset($_SESSION['__validated'])) {
+        $_SESSION['__validated'] = 1;
+        $_SESSION['ID'] = session_id();
+
+        # Attempt to write session to disk
+        @\session_write_close();
+
+        # Unset the variable from memory.
+        # This step may be unnecessary
+        unset($_SESSION['__validated']);
+
+        # Re-start session
+        @\session_start();
+
+        # Check if variable value is retained
+        if (!isset($_SESSION['__validated'])) {
+            # Session was not written to disk
+            return false;
+        }
+    }
+
+    return true;
+}
+
+if (!safe_session_start()) {
+    # Sessions are probably not written to disk...
+    # Handle error accordingly.
+}
+  
+  
+   date_default_timezone_set('America/New_York');
+   
+   define('DB_HOST', 'localhost');
+   define('DB_DATABASE','newageto_cloud');
+   define('DB_USER', 'newageto_dev'); 
+   define('DB_PASSWD', 'kyZ=p9]ZHdh%');
+   
+   error_reporting(E_ALL | E_STRICT);
+   
+   
+   //information for templates 
+   if (!isset($settings)){
+	class settings {};
+	$settings = new settings();
+    };
+  
+   
+    
+    
+    
+  //Settings 
+  $settings->root = $_SERVER['DOCUMENT_ROOT'];
+  $settings->emailtemplates = $settings->root.'/emailtemplates/';
+  $settings->url = "https://app.opencloudstart.com/";
+  
+  //print_r($settings);
+  //print_r($_SESSION); 
+  //print_r($_COOKIE); 
+
+  require($settings->root.'/interface/objSQL.php');
+  require($settings->root.'/interface/general.inc.ihtml');
+  
+  try   
+{   
+    $dbh = new objSQL( array( "mysql",DB_HOST,DB_USER,DB_PASSWD,DB_DATABASE,3306 ) );   
+           
+    if ( error_get_last() !== null )   
+        throw new Exception( error_get_last()['message'] );   
+           
+    //Query block     
+       
+    //$dbh->obj_close();       
+}   
+catch ( Exception $e )    
+{   
+    echo $e->getMessage();   
+}  
+ 
+
+
+
+function passwdHash ($passwd){
+    $passwd = hash( "sha512", $passwd);
+    return $passwd;
+}
+
+
+function GetIP() {
+	if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"), "unknown"))
+		$ip = getenv("HTTP_CLIENT_IP");
+	else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+		$ip = getenv("HTTP_X_FORWARDED_FOR");
+	else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+		$ip = getenv("REMOTE_ADDR");
+	else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+		$ip = $_SERVER['REMOTE_ADDR'];
+	else
+		$ip = "unknown";
+
+	return($ip);
+}
+     

@@ -1,0 +1,103 @@
+<body class="nav-md footer_fixed">
+
+  <div class="container body">
+
+
+    <div class="main_container">
+
+      <div class="col-md-3 left_col">
+        <div class="left_col scroll-view">
+
+          <div class="navbar nav_title" style="border: 0;">
+            <a href="index.html" class="site_title"><i class="fa fa-cloud"></i> <span>Open Cloud Start</span></a>
+          </div>
+          <div class="clearfix"></div>
+
+          <!-- menu prile quick info -->
+          
+          <!-- /menu prile quick info -->
+
+          <br />
+
+          <!-- sidebar menu -->
+          <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+
+            <div class="menu_section">
+              <h3>Small Biz Accounting</h3>
+              <ul class="nav side-menu">
+                <li><a href="main"><i class="fa fa-home"></i> Dashboard </a></li>
+                <li><a><i class="fa fa-edit"></i> Sales <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="invoice">Invoices</a>
+                    </li>
+                    <li><a href="customers">Customers</a></li>
+                    <li><a href="products">Products and Services</a>
+                    </li>
+                    
+                  </ul>
+                </li>
+                <li><a><i class="fa fa-money"></i> Expenses <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="vendor">Vendors</a></li>
+                    <li><a href="check">Write Check</a></li>
+                    <li><a href="check?mode=chkqueue">Print Checks</a>
+                    </li>
+                    
+                   </ul>
+                </li>
+                <li><a><i class="fa fa-bank"></i> Income <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="deposit">Bank Deposit</a></li>
+                    <li><a href="payment">Invoice Payments</a></li>
+                  </ul>
+                </li>
+                <li><a><i class="fa fa-credit-card"></i> Credit Cards <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="creditcard">Credit Card Charges</a></li>
+                    <li><a href="creditcard?mode=pay">Credit Card Payments</a></li>
+                   </ul>
+                </li>
+                
+                <li><a><i class="fa fa-balance-scale"></i> Accounting <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="journal">Journal Entry</a></li>
+                    <li><a href="coa">Chart of Accounts</a></li>
+                    <li><a href="reconcile">Reconciliation</a></li>
+                    <li><a href="salestax">Pay Sales Tax</a></li>
+                    
+                  </ul>
+                </li>
+                <li><a><i class="fa fa-print"></i> Reports <span class="fa fa-chevron-down"></span></a>
+                  <ul class="nav child_menu" style="display: none">
+                    <li><a href="reports?mode=pl">Profit & Loss</a></li>
+                    <li><a href="reports?mode=bal">Balance</a></li>
+                    <li><a href="reports?mode=trans">Transactional</a></li>
+                    <li><a href="reports?mode=coa">Chart of Accounts</a></li>
+                    
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            
+          </div>
+          <!-- /sidebar menu -->
+           <!-- /menu footer buttons -->
+          <div class="sidebar-footer hidden-medium">
+            <a data-toggle="tooltip" data-placement="top" title="profile" href="profile">
+              <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="top" title="Chat Help" href="https://tawk.to/chat/5b7317ceafc2c34e96e79343/default" target="_blank">
+              <span class="fa fa-comment-o fa-lg" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="top" title="help" href="https://app.opencloudstart.com/support/" target="_blank">
+              <span class="fa fa-question-circle fa-lg" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="top" title="Logout" href="logout">
+              <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+            </a>
+          </div>
+          <!-- /menu footer buttons -->
+        </div>
+      </div>
+      
+        

@@ -1,0 +1,225 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+           
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Account</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="invoice"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <div class="row">
+                    <h2>Reconcile</h2>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <label>Start Balance</label>
+                            <h3><?=number_money($startbalance);?></h3>
+                        </div>
+                        <div class="col-xs-3">
+                            <label>Deposits</label>
+                            <h3 id="curDeposits"><?=number_money(0.00);?></h3>
+                        </div>
+                        <div class="col-xs-3">
+                            <label>Withdrawls</label>
+                            <h3 id="curWithdrawls"><?=number_money(0.00);?></h3>
+                        </div>
+                        <div class="col-xs-3">
+                            <label>Ending Balance</label>
+                            <h3 id="endBalance"><?=number_money($endbalance);?></h3>    
+                        </div>
+                        <div class="col-xs-3">
+                            <label>Reconcile Balance</label>
+                            <h3 id="curBal"><?=number_money($startbalance-$endbalance)?></h3>    
+                        </div>
+                    </div>
+                    
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($frm); ?>
+                  <form action="reconcile.php" method="POST" id="reconForm">
+                    <input type="hidden" name="mode" value="complete" id="mode" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="account" value="<?=$account;?>" />
+                    <input type="hidden" name="startbalance" value="<?=$startbalance;?>" />
+                    <input type="hidden" name="startdate" value="<?=$startdate;?>" />
+                    <input type="hidden" name="endbalance" value="<?=$endbalance;?>" />
+                    <input type="hidden" name="enddate" value="<?=$enddate;?>" />
+                    <input type="hidden" name="debitAdd" value="" id="debitAdd"/>
+                    <input type="hidden" name="creditAdd" value="" id="creditAdd" />
+                    
+                    
+                    <script>
+                    
+                        function addRecon(item){
+                            
+                          var checkboxes = document.getElementsByName('deposit[]');
+                          var vals = 0;
+                          var invSelect1 = ""; 
+                          for (var i=0, n=checkboxes.length;i<n;i++) {
+                                if (checkboxes[i].checked) 
+                                        {
+                                            vals = vals + parseFloat(checkboxes[i].value);
+                                            invSelect1 += ","+checkboxes[i].id;
+                                        }
+                                }
+                             
+                            document.getElementById('curDeposits').innerHTML = '$ '+vals.toFixed(2);
+                            
+                          var checkboxes = document.getElementsByName('withdrawl[]');
+                          var chg = 0;
+                          var invSelect2 = ""; 
+                          for (var i=0, n=checkboxes.length;i<n;i++) {
+                                if (checkboxes[i].checked) 
+                                        {
+                                            chg = chg + parseFloat(checkboxes[i].value);
+                                            invSelect2 += ","+checkboxes[i].id;
+                                        }
+                                }
+                             
+                            document.getElementById('curWithdrawls').innerHTML = '$ '+chg.toFixed(2);
+                            
+                            var startBalance = document.getElementsByName('startbalance')[0].value; 
+                            var endBalance = document.getElementsByName('endbalance')[0].value;
+                            startBalance = ~~parseFloat(startBalance);  
+                            endBalance = ~~parseFloat(endBalance); 
+                            
+                            
+                            var balEnd = 0;
+                            balEnd = startBalance + vals - chg - endBalance;
+                             
+                            document.getElementById('curBal').innerHTML = '$ '+balEnd.toFixed(2); 
+                            document.getElementById('debitAdd').value = invSelect1;
+                            document.getElementById('creditAdd').value = invSelect2;
+                           
+                        }
+                    
+                    </script>
+                    
+                    
+                   <div class="">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-clipboard"></i> Reconcile Account: <?=$account;?> <small></small></h2>
+              
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Deposits</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Withdrawls</a>
+                        </li>
+                        
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                      <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date</th>
+                           <th>Ref</th>
+                           <th>Description<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Amount</th>
+                           <th><i class="fa fa-caret-down"></i></th>
+                           
+                           
+                        </tr>
+                      </thead>
+                      <? //print_r($deposit);
+                       echo "endbalance:".$endbalance;
+                       echo "startbalance:".$startbalance;
+                      for($a=0;$a<count($deposit); $a++){ ?>
+                         <tr>
+                            <td><?=retrieve_date($deposit[$a]['enterdate']);?></td>
+                            <td><?=$deposit[$a]['reference'];?></td>
+                            <td><?=$deposit[$a]['memo'];?></td>
+                            <td><?=number_money($deposit[$a]['debit']);?></td>
+                            <td><input type="checkbox" name="deposit[]" id="<?=$deposit[$a]['transid'];?>" value="<?=$deposit[$a]['debit'];?>" onclick="addRecon(this);"/></td>
+                            
+                         </tr>  
+                            
+                      <? } ?>
+                      
+                      
+                      
+                      </table>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                          <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date</th>
+                           <th>Ref</th>
+                           <th>Description<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Amount</th>
+                           <th><i class="fa fa-caret-down"></i></th>
+                           
+                           
+                        </tr>
+                      </thead>
+                       <? //print_r($withdrawl); 
+                      for($a=0;$a<count($withdrawl); $a++){ ?>
+                         <tr>
+                            <td><?=retrieve_date($withdrawl[$a]['enterdate']);?></td>
+                            <td><?=$withdrawl[$a]['reference'];?></td>
+                            <td><?=$withdrawl[$a]['memo'];?></td>
+                            <td><?=number_money($withdrawl[$a]['credit']);?></td>
+                            <td><input type="checkbox" name="withdrawl[]" id="<?=$withdrawl[$a]['transid'];?>" value="<?=$withdrawl[$a]['credit'];?>" onclick="addRecon(this);"/></td>
+                            
+                         </tr>  
+                            
+                      <? } ?>
+                      
+                      
+                      </table>
+                        </div>
+                        
+                      </div>
+                    </div>
+                        <input type="submit" value="Submit" class="btn btn-primary" />
+                   </div>
+                </div>
+              </div>
+</form>
+                    
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+                    
+                </div>
+                
+              </div>
+            </div>
+            
+</div>
+                
+            

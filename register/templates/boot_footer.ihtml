@@ -1,0 +1,38 @@
+      <!-- footer content -->
+        <footer>
+          <div class="copyright-info">
+            <p class="pull-right">Open Cloud Start - Small Biz Accounting
+            </p>
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+    <!-- /footer content -->
+   
+   
+   </div>
+
+ </div> 
+
+    
+
+
+  <script src="../js/bootstrap.min.js"></script>
+  
+  <!-- chart js -->
+  <script type="text/javascript" src="../js/moment/moment.min.js"></script>
+  <script src="../js/chartjs/chart.min.js"></script>
+  <!-- bootstrap progress js -->
+  <script src="../js/progressbar/bootstrap-progressbar.min.js"></script>
+  <script src="../js/nicescroll/jquery.nicescroll.min.js"></script>
+  <!-- icheck -->
+  <script src="../js/icheck/icheck.min.js"></script>
+  <!-- Select2 -->
+  <script src="../vendors/select2/dist/js/select2.full.min.js"></script>
+  <script src="../js/custom.js"></script>
+  <!-- pace -->
+  <script src="../js/pace/pace.min.js"></script>
+
+  
+</body>
+
+</html>

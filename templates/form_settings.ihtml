@@ -1,0 +1,86 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Settings</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Company Information</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="main"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Update Company Information</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? //print_r($company);?>
+                  <form action="settings" method="POST">
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12">
+                        <label>Company Information</label>
+                        <input type="text" name="companyName" value="<?=$company['companyName'];?>" class="form-control" /> 
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Sales Tax Rate</label>
+                        <input type="text" name="salestax" value="<?=$company['salestax'];?>" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Sales Tax COA</label>
+                        <input type="text" name="salestaxcoa" value="<?=$company['salestaxcoa'];?>" class="form-control" />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Federal Tax ID Number</label>
+                        <input type="text" name="fein" value="<?=$company['fein'];?>" class="form-control" />
+                    </div>
+                   </div>
+                   
+                   
+                   
+                  <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+                </div>
+              </div>
+            </div>
+              </div>
+                </div>
+              </div>
+              
+            </div>

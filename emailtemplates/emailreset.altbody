@@ -1,0 +1,15 @@
+						Dear ##firstname##,<br /><br />
+						You have requested that you reset the Open Cloud Start Password on file. The following link will only be valid for 
+                        24 hours. After that time you would need to request a new key. <br />
+                        Click on the following link to reset your password. <br />
+                        <a href="##link##">Click to reset Password</a><br /><br />
+                        
+                        If the above link did not work past the folloing into your web browser. <br />
+                        ##link##<br /><br />
+                        
+                        If you got this email in error please contact us at info@opencloudstart.com<br /> 
+                        Thank you for trusting our company. 
+                        
+                        Open Cloud Start
+                        
+                       

@@ -1,0 +1,677 @@
+<?
+
+//////////////////////////////////////////////////////////
+//		Function       : clean
+//		Description    : strips special characters from input. Use this on EVERYTHING!
+//		Inputs: $string: the string to be cleaned
+//////////////////////////////////////////////////////////
+
+function soapclean($string) {
+
+	$string = str_replace("\"", "", $string);
+	$string = str_replace("£", "", $string);
+	$string = str_replace("$", "", $string);
+	$string = str_replace("%", "", $string);
+	$string = str_replace("&", "", $string);
+	$string = str_replace("`", "", $string);
+	$string = str_replace("'", "", $string);
+	
+	return $string;
+
+};
+
+function nameclean($string) {
+
+	$string = str_replace("!", "", $string);
+	$string = str_replace("\"", "", $string);
+	$string = str_replace("£", "", $string);
+	$string = str_replace("$", "", $string);
+	$string = str_replace("%", "", $string);
+	$string = str_replace("&", "", $string);
+	$string = str_replace("/", "", $string);
+	$string = str_replace("\\", "", $string);
+	$string = str_replace("(", "", $string);
+	$string = str_replace(")", "", $string);
+	$string = str_replace("[", "", $string);
+	$string = str_replace("]", "", $string);
+	$string = str_replace("{", "", $string);
+	$string = str_replace("}", "", $string);
+	$string = str_replace("?", "", $string);
+	$string = str_replace("*", "", $string);
+	$string = str_replace("§", "", $string);
+	$string = str_replace(">", "", $string);
+	$string = str_replace("<", "", $string);
+	$string = str_replace("°", "", $string);
+	$string = str_replace("#", "", $string);
+	$string = str_replace("~", "", $string);
+	$string = str_replace("`", " ", $string);
+	$string = str_replace("'", " ", $string);
+	$string = str_replace("ç", "", $string);
+	$string = str_replace("'"," ", $string);
+	return $string;
+
+};
+
+function CapitalizeName($new_name) {
+		$cap_name = "";
+		$started = 0;
+        //explode the name so Couture, and Beil are treated as seperate names
+        $name = explode("-", $new_name);
+        for ($i=0;$i<count($name);$i++) {
+            if ($started == 1) {
+                //adds the hyphen back in
+                $cap_name .= '-';
+            } else {
+                //if we omited the if started, we would get -Jean-Luc
+                $started = 1;
+            }
+            //throw it all back together
+            $cap_name .= ucwords(strtolower($name[$i]));
+        }
+        //and return it.
+        return $cap_name;
+}
+
+
+function showfrm($frm){
+	echo "<div id=\"mainfooter\"><br>";
+	print_r($frm);
+	echo "</div>";
+	return;
+}
+
+function apclean($string){
+	$string = str_replace(" ","",$string);
+	return $string;
+};
+
+
+function ccformat($ccnum,$type){
+
+	global $settings, $session;
+	$cctest = substr($ccnum,0,1);
+	if ($type == "VisaCard" or $type =="MasterCard" or $type =="AmExCard" or $type == "DiscoverCard"){
+	
+	if ($cctest == 3){
+	 	  $ccp1 = substr($ccnum,0,4);
+		  $ccp2 = substr($ccnum,4,6);
+		  $ccp3 = substr($ccnum,10,5);
+	 	$newcc = $ccp1."-".$ccp2."-".$ccp3;
+	 } elseif ($cctest ==4 or $cctest == 5 or $cctest == 6) {
+
+			$ccp1 = substr($ccnum,0,4);
+			$ccp2 = substr($ccnum,4,4);
+			$ccp3 = substr($ccnum,8,4);
+			$ccp4 = substr($ccnum,12,4);
+
+	 	 	$newcc = $ccp1."-".$ccp2."-".$ccp3."-".$ccp4;
+	 };
+
+	} else {
+	    $newcc = $ccnum;
+		};
+	return $newcc;
+};
+
+function ccformat2($ccnum){
+
+	global $settings, $session;
+
+	$ccnum = str_replace(" ","",$ccnum);
+	$ccnum = str_replace("-","",$ccnum);
+
+	$cctest = substr($ccnum,0,1);
+	if ($cctest == 3){
+	 	  $ccp1 = substr($ccnum,0,4);
+		  $ccp2 = substr($ccnum,4,6);
+		  $ccp3 = substr($ccnum,10,5);
+	 	$newcc = $ccp1." ".$ccp2." ".$ccp3;
+	 } elseif ($cctest ==4 or $cctest == 5 or $cctest == 6) {
+
+			$ccp1 = substr($ccnum,0,4);
+			$ccp2 = substr($ccnum,4,4);
+			$ccp3 = substr($ccnum,8,4);
+			$ccp4 = substr($ccnum,12,4);
+
+	 	 	$newcc = $ccp1." ".$ccp2." ".$ccp3." ".$ccp4;
+	 } else {
+	    $newcc = $ccnum;
+		};
+	return $newcc;
+};
+
+function ccformat3($ccnum){
+
+	global $settings, $session;
+
+	$ccnum = str_replace(" ","",$ccnum);
+	$ccnum = str_replace("-","",$ccnum);
+
+	$cctest = substr($ccnum,0,1);
+	if ($cctest == 3){
+	 	  $ccp1 = substr($ccnum,0,4);
+		  $ccp2 = substr($ccnum,4,6);
+		  $ccp3 = substr($ccnum,10,5);
+	 	$newcc = $ccp1." ".$ccp2." ".$ccp3;
+	 } elseif ($cctest ==4 or $cctest == 5 or $cctest == 6) {
+
+			$ccp1 = substr($ccnum,0,4);
+			$ccp2 = substr($ccnum,4,4);
+			$ccp3 = substr($ccnum,8,4);
+			$ccp4 = substr($ccnum,12,4);
+
+	 	 	$newcc = $ccp1."-".$ccp2."-".$ccp3."-".$ccp4;
+	 } else {
+	    $newcc = $ccnum;
+		};
+	return $newcc;
+};
+
+//////////////////////////////////////////////////////////
+//		Function       : number_whole
+//		Function       : number_decimal
+//		Description    : formats a number appropriately
+//		Inputs:	$number: the number to be formatted
+//////////////////////////////////////////////////////////
+
+function number_whole($number) {
+	return number_format ($number, 0, ",", ".");
+}
+
+function number_decimal($number) {
+	return number_format ($number, 2, ".","");
+}
+
+function number_money($number) {
+	$number = "$".number_format ($number, 2, ".", ",");
+
+    return $number;
+}
+
+//////////////////////////////
+//     Get File Extenstion  //
+//////////////////////////////
+
+function getFileExtension($str) {
+
+	$i = strrpos($str,".");
+	if (!$i) { return ""; }
+
+	$l = strlen($str) - $i;
+	$ext = substr($str,$i+1,$l);
+
+	return $ext;
+
+}
+
+
+////////////////////////////////////////////////////////////////
+//    function: Current Date and Time for Display
+////////////////////////////////////////////////////////////////
+
+function display_date() {
+	$display_date = date("F j, Y, g:i a");
+	return $display_date;
+}
+
+function form_date() {
+	$date = date("Ymd");
+	$date_year   = substr($date,0,4);
+	$date_month  = substr($date,4,2);
+	$date_day    = substr($date,6,2);
+
+	$end_date    = $date_month."/".$date_day."/".$date_year;
+
+	return $end_date;
+};
+
+function storage_date($datefield) {
+
+    // First check to see if the input ($datefield) is in one of the accepted formats
+
+    // Check for delimiters ("-" or "/") and put three fields into an array
+    if (strpos($datefield, "-")) {
+      $datesplit = explode("-", $datefield);
+    } elseif (strpos($datefield, "/")) {
+      $datesplit = explode("/", $datefield);
+    } else {
+        $date_err="Error: Invalid date field. No proper delimiters (- or /) found";
+        return $date_err;
+    }
+
+    // Check for three input fields (month, day, year)
+    if (count($datesplit)>3) {
+        $date_err="Error: Invalid date field. Too many fields (".count($datesplit).") found";
+        return $date_err;
+    }
+
+    // Put date array into single format
+    if (strlen($datesplit[2])==4) { // The year is listed last - switch fields around
+        $newdatesplit[0]=$datesplit[2]; // Move Year to first field
+        $newdatesplit[1]=$datesplit[0]; // Move Month to second field
+        $newdatesplit[2]=$datesplit[1]; // Move Day to third field
+        $datesplit=$newdatesplit;
+    } elseif (strlen($datesplit[0])==4) { // The year is first listed - do nothing
+        // nothing to be done
+    } else { // Date entered is not valid; could not find year field
+        $date_err="Error: Date not valid. No Year field found (Year must be 4 digits)";
+        return $date_err;
+    }
+
+    // Main validation code
+
+    if ($datesplit[1]>12) { // No valid month field
+        $date_err="Error: Invalid Month field (".$datesplit[1].") ";
+        return $date_err;
+    } else {
+       switch ($datesplit[1]) { // Check number of days in a month
+           case 4:
+           case 6:
+           case 9:
+           case 11:
+                if ($datesplit[2]>30) {
+                    $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                    return $date_err;
+                }
+                break;
+           case 2: // February Check
+                   if (($datesplit[0]/4)==(floor($datesplit[0]/4))) {
+                    if (($datesplit[0]/100)==(floor($datesplit[0]/100))) {
+                        if (($datesplit[0]==1600) or ($datesplit[0]==2000) or ($datesplit[0]==2400)) {
+                            if ($datesplit[2]>29) {
+                                $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                                return $date_err;
+                            }
+                        } else {
+                            if ($datesplit[2]>28) {
+                                $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                                return $date_err;
+                            }
+                        }
+                    } else {
+                        if ($datesplit[2]>29) {
+                            $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                            return $date_err;
+                        }
+                    }
+                } else {
+                    if ($datesplit[2]>28) {
+                        $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                        return $date_err;
+                    }
+                }
+                break;
+           default:
+                if ($datesplit[2]>31) {
+                    $date_err="Error: Invalid # of days (".$datesplit[2].") for month ".$datesplit[1]." and year ".$datesplit[0];
+                    return $date_err;
+                }
+        }
+      }
+          // Add leading zero if month or day field is only one character
+      if (strlen($datesplit[1])==1) {
+          $datesplit[1]="0".$datesplit[1];
+      }
+      if (strlen($datesplit[2])==1) {
+          $datesplit[2]="0".$datesplit[2];
+      }
+
+      // Create date field in MySQL format
+      $newdate=$datesplit[0]."-".$datesplit[1]."-".$datesplit[2];
+      return $newdate;
+
+} // End date_validate function
+
+
+
+function retrieve_date($date) {
+	$date_year   = substr($date,0,4);
+	$date_month  = substr($date,5,2);
+	$date_day    = substr($date,8,2);
+
+	if(!isset($date_month) || $date_month<1){		
+		$end_date = "00/00/0000";
+	} else {
+		$end_date    = $date_month."/".$date_day."/".$date_year;
+	}
+	//echo "year:".$date_year."<br>";
+	//echo "month:".$date_month."<br>";
+	//echo "day:".$date_day."<br>";
+
+	return $end_date;
+}
+
+
+
+function display_phone($phone) {
+
+	$phone = trim($phone);
+	$phone_length = strlen($phone);
+
+	switch ($phone_length) {
+		case 7:
+			$newphone = substr($phone, 0, 3) . "-" . substr($phone, 3, 4);
+			break;
+		case 10:
+			$newphone = "(" . substr($phone, 0, 3) . ")" . substr($phone, 3, 3) .  "-" . substr($phone, 6, 4);
+			break;
+		case 11:
+			$newphone = substr($phone, 0, 1) . "(" . substr($phone, 1, 3) . ")" . substr($phone, 4, 3) .  "-" . substr($phone, 7, 4);
+			break;
+		default:
+			$newphone = $phone;
+			break;
+	}
+
+	return $newphone;
+};
+
+function storage_phone($phone) {
+	$phone = str_replace("-","",$phone);
+	$phone = str_replace("(","",$phone);
+	$phone = str_replace(")","",$phone);
+	$phone = str_replace(" ","",$phone);
+	$phone = str_replace("'","",$phone);
+	$phone = str_replace("*","Ext",$phone);
+	$phone = str_replace("Ext","Ext",$phone);
+
+	return $phone;
+};
+
+
+function isSelected($option, $item) {
+
+	if ($option == $item) {
+	echo "SELECTED";
+	};
+}
+function isChecked($option, $item) {
+
+	if ($option == $item) {
+	echo "CHECKED";
+	};
+}
+
+function sentence_case($string)
+
+	{
+	 $lower_exceptions = array(
+	        "to" => "1", "a" => "1", "the" => "1", "of" => "1"
+	 );
+
+	 $higher_exceptions = array(
+	        "I" => "1", "II" => "1", "III" => "1", "IV" => "1",
+	        "V" => "1", "VI" => "1", "VII" => "1", "VIII" => "1",
+	        "XI" => "1", "X" => "1"
+	 );
+
+	 $words = split(" ", $string);
+	 $newwords = array();
+
+	 foreach ($words as $word)
+	 {
+	        if (!$higher_exceptions[$word])
+	                $word = strtolower($word);
+	        if (!$lower_exceptions[$word])
+	                $word = ucfirst($word);
+	         array_push($newwords, $word);
+
+	 }
+
+	 return join(" ", $newwords);
+}
+
+
+
+ function sentence_case2($val) {
+
+ 	$val = ucfirst(strtolower($val)); // make the whole line lower case and capitalize the first word
+
+ 	while (ereg("([a-z]+)(\.|\?|;|:|!)([ \"']+)([a-z])",$val,$regs))  // use this regular expression to find the beginning of a sentence.
+ 	{
+ 	  $capword = ucfirst($regs[4]);  // capitalize the word found
+
+ 	  $replacethis = $regs[1] . $regs[2] . $regs[3] . $regs[4];
+ 	  $withthis = $regs[1] . $regs[2] . $regs[3] . $capword;
+
+ 	  $val = ereg_replace($replacethis,$withthis,$val);
+ 	}
+
+ 	return $val;
+
+}
+
+
+function date2Array($thisDate) {
+
+	$returnArray = explode("-", $thisDate);
+	return $returnArray;
+}
+
+function datediff($date1,$date2)
+{
+  $s=strtotime($date2) - strtotime($date1);
+
+  $m=intval($s/60);
+  $s=$s%60;
+
+  $h=intval($m/60);
+  $m=$m%60;
+
+  $d=intval($h/24);
+  $h=$h%24;
+
+  $diff="";
+  if(!$d=="0") $diff.="$d";
+  trim($diff);
+  return $diff;
+}
+
+function cc_luhn_chk($u2i_cc) {
+$sum_total = "";
+    for ($i = strlen($u2i_cc), $double_it = true; $i > -1; $i = $i-1) {
+        $str_sub = substr($u2i_cc, $i, 1);
+        if ($double_it) {
+            $nbr_tmp = $str_sub * 2; $double_it = false;
+	    } else { $nbr_tmp = $str_sub; $double_it = true; }
+    	if (strlen($nbr_tmp) > 1) {
+			$sum_total = $sum_total + substr($nbr_tmp, 0, 1) + substr($nbr_tmp, 1, 1);
+	    } else { $sum_total = $sum_total + $nbr_tmp; }
+    }
+    if (is_integer($sum_total/10)) { return true;
+    	} else { return false; }
+	}
+
+function check_email($str)
+{
+    //returns 1 if valid email, 0 if not
+    if(ereg("^.+@.+\\..+$", $str))
+        return 1;
+    else
+        return 0;
+}
+
+function checkEmail($email) {
+ // checks proper syntax
+ 
+ if(ereg("^.+@.+\\..+$", $email)){
+  // gets domain name
+  list($username,$domain)=split('@',$email);
+  // checks for if MX records in the DNS
+  if(!checkdnsrr($domain, 'MX')) {
+   return false;
+  }
+  // attempts a socket connection to mail server
+  // if(!fsockopen($domain,25,$errno,$errstr,30)) {
+  //  return false;
+  //}
+  //echo "<br>check".$email."<Br>";
+  return true;
+ }
+ return false;
+}
+
+function daystogo ($traveldate, $canceldate){
+//date in yyyy-mm-dd style
+$date1 = explode("-",$traveldate);
+$date2 = explode("-",$canceldate);
+$datediff = mktime(12,0,0,$date1[1],$date1[2]-1,$date1[0]) - mktime(12,0,0,$date2[1],$date2[2],$date2[0]);
+$days = floor($datediff/60/60/24);
+
+return $days;
+
+};
+
+////////display calculated age on cruise display form
+
+function Convert_DOB_to_Age($DOB) // $DOB is in YYYY-MM-DD format
+   {
+       //explode $DOB to an array for easy processing.
+       $DOBArray = explode("-", $DOB);
+
+       // Get today's year, month and day
+       $TodayDay = date('d');
+       $TodayMonth = date('m');
+       $TodayYear = date('Y');
+
+       // The logic
+       if (($TodayMonth > $DOBArray[1]) || (($TodayMonth == $DOBArray) && ($TodayDay >= $DOBArray[2])))
+       {$Age = $TodayYear - $DOBArray[0];}
+       else {$Age = $TodayYear - $DOBArray[0] - 1;}
+
+       // return the age
+       return $Age;
+   }
+
+ ///////displayed error screen when security fails///////////////
+
+ function security_fail($employee, $seclevel){
+
+ echo "<table cellpadding=0 cellspacing=0 width=100%><tr><td align=center><font size=2 face=verdana><b>Sorry $employee you Do Not have enough access to alter or proceed to the Next level.<br> Your access Level is only Level $seclevel <Br>";
+ echo "Please click on the Back Button and Continue...</b></font></td></tr></table>";
+ die;
+
+
+ };
+
+//function DateAdd
+//Possible intervals are
+// yyyy year
+// q Quarter
+// m Month
+// y Day of year
+// d Day
+// w Weekday
+// ww Week of year
+// h Hour
+// n Minute
+// s Second
+
+function dateadd($interval, $number, $date) {
+
+    $date_time_array = getdate($date);
+    $hours = $date_time_array['hours'];
+    $minutes = $date_time_array['minutes'];
+    $seconds = $date_time_array['seconds'];
+    $month = $date_time_array['mon'];
+    $day = $date_time_array['mday'];
+    $year = $date_time_array['year'];
+
+    switch ($interval) {
+
+        case 'yyyy':
+            $year+=$number;
+            break;
+        case 'q':
+            $year+=($number*3);
+            break;
+        case 'm':
+            $month+=$number;
+            break;
+        case 'y':
+        case 'd':
+        case 'w':
+            $day+=$number;
+            break;
+        case 'ww':
+            $day+=($number*7);
+            break;
+        case 'h':
+            $hours+=$number;
+            break;
+        case 'n':
+            $minutes+=$number;
+            break;
+        case 's':
+            $seconds+=$number;
+            break;
+    }
+       $timestamp= mktime($hours,$minutes,$seconds,$month,$day,$year);
+    return $timestamp;
+}
+
+//----------------------------------------------------------------------------
+ //encodes the string. Returns an array with the
+ //string as the first element and the initialization
+ //vector as the second element
+ function easy_crypt($string, $key){
+   $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+   $iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
+   $string = mcrypt_encrypt(MCRYPT_BLOWFISH, $key,
+                            $string, MCRYPT_MODE_CBC, $iv);
+
+   return array(base64_encode($string), base64_encode($iv));
+ }
+
+ //decodes a string
+ //the first argument is an array as returned by easy_encrypt()
+ function easy_decrypt($cyph_arr, $key){
+   $out = mcrypt_decrypt(MCRYPT_BLOWFISH, $key, base64_decode($cyph_arr[0]),
+                         MCRYPT_MODE_CBC, base64_decode($cyph_arr[1]));
+
+   return trim($out);
+ }
+///sample usage
+// $str = '02082008/Margo/Shama';
+// $code = 'p@$$word';
+ 
+// $cyph = easy_crypt($str, $code);
+// $dec_string = easy_decrypt($cyph, $code);
+
+// echo "The original string is: $str"."<br>";
+// echo "The encoded string is: {$cyph[0]}"."<br>";
+// echo "The initialization vector is: {$cyph[1]}"."<br>";
+// echo "The decoded string is $dec_string"."<br>";
+//---------------------------------------------------------------------------
+
+
+function date_check($date){
+	global $settings;
+	$MySQLDate1=storage_date($date);
+    if (substr($MySQLDate1, 0, 5)=="Error") {
+        $err = 'ERROR: Date is not in valid Format MM/DD/YYYY ';
+        require($settings->templates.'/print_error.ihtml');
+        die;
+    } else {
+        $date = $MySQLDate1;
+        
+    };
+    return $date;
+}
+
+function _toInt($str)
+{
+		$floatval = preg_replace("/[^\d\.]/", "", $str);	
+
+    return $floatval;
+}
+
+function sum_arrays($array1, $array2) {
+    $array = array();
+    foreach($array1 as $index => $value) {
+        $array[$index] = isset($array2[$index]) ? $array2[$index] - $value : $value;
+    }
+    return $array;
+}
+
+?>

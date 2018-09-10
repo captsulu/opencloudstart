@@ -1,0 +1,29 @@
+<? 
+
+    function chklogin(){
+        global $settings, $dbh;
+        
+        if(!isset($_COOKIE['PHPSESSID'])){ 
+           foreach($_COOKIE as $key=>$value){
+		      setcookie($key,'',0);
+            }
+           @session_destroy();
+           header('Location: index.html');
+           exit();
+        }    
+        
+        if(!isset($_SESSION['ID'])){
+            foreach($_COOKIE as $key=>$value){
+	           	setcookie($key,'',0);
+	       }
+           @session_destroy();
+           header('Location: index.html');
+           exit();
+        }    
+        
+        
+        foreach ($_COOKIE as $key=>$value){
+            setcookie($key,$value,time()+3600);
+        }   
+            
+    }

@@ -1,0 +1,128 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Sales</h3>
+              </div>
+
+             
+            </div>
+            
+            <script>
+                function itemSelect(item){
+                    var nameProduct = <?=$productsVar;?>;
+                    var newProduct = nameProduct.filter( function(nameProduct) { return nameProduct.id == item.value});
+                    var obj = JSON.parse(JSON.stringify(newProduct));
+                    
+                    document.getElementById('price').value = obj[0].price;
+                    document.getElementById('taxable').value = obj[0].taxable;
+                    document.getElementById('extended').value = (document.getElementById('qty').value * obj[0].price).toFixed(2);   
+                    
+                }  
+                
+                
+                function selectQty(item){
+                    document.getElementById('extended').value = (document.getElementById('price').value * document.getElementById('qty').value).toFixed(2);   
+                    
+                }
+                
+                function newPrice(item){
+                    document.getElementById('extended').value = (document.getElementById('qty').value * item.value).toFixed(2); 
+                }  
+            
+            
+            </script>
+            
+            
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Invoice</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="customers"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Item Selection - Invoice: <?=$invoiceID?></h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="invoice" method="POST">
+                    <input type="hidden" name="mode" value="iteminsert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="customer" value="<?=$customer?>" />
+                    <input type="hidden" name="invoiceID" value="<?=$invoiceID?>" />
+                    <input type="hidden" name="lineCnt" value="<?=$lineCnt;?>" />
+                    <input type="hidden" name="taxrate" value="<?=$taxrate;?>" />
+                    <? if(isset($showValues )){ ?>
+                    <input type="hidden" name="showValues" value="1" />
+                    <? } ?>
+                    
+                    <div class="col-xs-12">
+                        <label>Account</label>
+                        <select name="account" class="form-control" >
+                            <? for($b=0;$b<count($coa);$b++){?>
+                                <option value="<?=$coa[$b]['account'];?>" ><?=$coa[$b]['account'];?>-<?=$coa[$b]['name'];?></option>
+                            <? } ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-xs-12">
+                        <label>Item Selection </label>
+                        <select name="itemID" class="form-control" onchange="itemSelect(this);">
+                            <? for($a=0;$a<count($products);$a++){?>
+                                <option value="<?=$products[$a]['id'];?>" > <?=$products[$a]['name'];?></option>
+                            <? } ?>
+                        </select>
+                 
+                    </div>
+                    <div class="col-xs-3">
+                        <label>Quantity</label>
+                        <input type="text" name="newqty" value="1" placeholder="1" class="form-control" id="qty" onchange="selectQty(this);" />
+                    </div>
+                    <div class="col-xs-3">
+                        <label>Price</label>
+                        <input type="text" name="newprice" value="<?=$price;?>" class="form-control" id="price" onchange="newPrice(this);"/>
+                    </div>
+                    <div class="col-xs-3">
+                        <label>Taxable</label>
+                        <select name="newtaxable" class="form-control" id="taxable">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        
+                        </select>
+                    </div>
+                    <div class="col-xs-3">
+                        <label>Extended</label>
+                        <input type="text" name="ExtAmt" value="" class="form-control" id="extended" />
+                    </div>
+                            
+                    
+                    </div>
+                    </div>
+                    <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Add Item Invoice" />
+                </div>
+                </form>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+                </div>
+              </div>
+            </div>

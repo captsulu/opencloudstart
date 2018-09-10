@@ -1,0 +1,236 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Expenses</h3>
+              </div>
+              
+                <script type="text/javascript">
+                          function checkSum(frm){
+                                var debitAdd = parseFloat(0, 10);
+                                
+                        
+                                var inps = document.getElementsByName('debit[]');
+                                for (var i = 0; i <inps.length; i++) {
+                                var inp=inps[i];
+                                    debitAdd += parseFloat(inp.value, 10);
+                                   
+                                }
+                                
+                                function numberWithCommas(n) {
+                                    var parts=n.toString().split(".");
+                                    return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+                                    }
+                             document.check.debitAdd.value = debitAdd.toFixed(2);
+                             document.getElementById('checkAmt').innerHTML = '$'+numberWithCommas(debitAdd.toFixed(2));
+                            }
+                            
+                            function ActionLineAdd() {
+                                document.check.mode.value = 'lineadd';
+                                document.getElementById('check').submit();
+                                
+                            }
+                            
+                            function upBalance(item) {
+                                var bankList = [
+                                <? $newBalance = array();
+                                   $curBal = '';
+                                   for($zz=0;$zz<count($bal);$zz++){
+                                     $curBal = "{ account: '".$bal[$zz]['account']."', balance: ".$bal[$zz]['debitBal'].", refNo: '".$bal[$zz]['refNo']."'}";
+                                    array_push($newBalance, $curBal);
+                                    
+                                    }; 
+                                   $outVar = implode(",",$newBalance);
+                                   echo $outVar;
+                                 ?> ];
+                                 
+                                 var bankBal = bankList.filter(obj=> { return obj.account === item.value})
+                                 var newBalance = bankBal[0]['balance'];
+                                 function numberWithCommas(n) {
+                                    var parts=n.toString().split(".");
+                                    return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+                                    }
+                                    
+                                  document.check.bankAcct.value = bankBal[0]['account'];
+                                  document.getElementById('newBalance').innerHTML = '$'+numberWithCommas(newBalance.toFixed(2));
+                                  document.check.reference.value = bankBal[0].refNo;
+                            }
+
+                      </script>
+            
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    
+                    <ul class="nav navbar-left panel_toobox">
+                        <li><a class="btn btn-default btn-sm" href="check?mode=show"><i class="fa fa-history"></i> Check Entries</a></li>
+                    </ul>
+                    <ul class="nav navbar-right panel_toolbox">
+                       
+                       <li><a class="btn btn-default" href="main"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Checks</h2>
+                    <div class="pull-right">
+                    <b><h1 id="checkAmt"><?=number_money($checkAmt)?></h1></b>
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? //print_r($vendors);
+                     //echo "vendorid:".$vendorid;?>
+                  <form action="check" method="POST" name="check" id="check">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="transid" value="<?=$transid?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="lineCnt" value="<?=$lineCnt;?>" />
+                    
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="lineCnt" value="<?=$lineCnt;?>" />
+                    
+                    <? } ?>
+                    
+                    <div class="row">
+                        <div class='col-sm-2'>
+                            <label>Entry Date</label>
+                    <div class="form-group">
+                        <div class='input-group date' id='myDatepicker2'>
+                            <input type="text" class="form-control" name="enterdate" value="<? if(isset($enterdate)){ echo retrieve_date($enterdate); } else { echo date("m/d/Y");}; ?>" placeholder="Date"  class="form-control" required=""/>
+                            <span class="input-group-addon">
+                               <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
+                <div class="col-sm-2">
+                        <label>Bank Account</label><br />
+                             
+                            <select class="selectpicker form-control" data-live-search="true" name="bankAcct" onchange="upBalance(this);">
+                                    <? for($a=0;$a<count($bank);$a++){ ?>
+                                    <option value="<?=$bank[$a]['account'];?>" <? if(isset($bankAcct)){ isSelected($bank[$a]['account'],$bankAcct); };?> ><?=$bank[$a]['name'];?></option>
+                                    <? }  ?>
+                                      
+                            </select>
+                     </div>
+                        <div class="col-xs-3">
+                        <div class="form-group">
+                            <label> To: </label><br />
+                            <div class="col-md-12 col-sm-6 col-xs-12">
+                                <select class="select2_single form-control" tabindex="-1" name="vendorid">
+                                    <? for($a=0;$a<count($vendors);$a++){ ?>
+                                    <option value="<?=$vendors[$a]['id'];?>" <? if(isset($vendorid)){ isSelected($vendors[$a]['id'],$vendorid); };?> ><?=$vendors[$a]['coname'];?></option>
+                                    <? }  ?>
+                                      
+                            </select>
+                            
+                            </div>  
+                           </div> 
+                        </div>
+                        <div class="col-xs-1">
+                        <label>&nbsp;</label><br />
+                        <a href="check?mode=quickadd&transid=<? if(isset($transid)){ echo $transid;} else { echo "0";};?>" class="btn btn-default inline" data-toggle="tooltip" data-placement="top" title="Add Vendor"  ><i class="fa fa-plus"></i></a>
+                        </div>
+                        <div class="col-xs-2">
+                            <div class="row">
+                            <label>Balance</label>
+                            <h5 id="newBalance"><?=number_money($balance);?></h5>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xs-2 pull-right">
+                            <label>Check No. </label><span class="pull-right"><input type="checkbox" name="printqueue" value="1" <? if(isset($printqueue)){ isChecked(1,$printqueue); };?> /> Print Later</span></label>
+                            <input type="text" name="reference" value="<? if(isset($reference)){ echo $reference; } else { echo "CHK"; };?>" placeholder="Check No" class="form-control" required="" />
+                        </div>
+                    </div>
+                    <br />
+                    
+                   
+                    <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th class="col-xs-2">Account</th>
+                           <th class="col-xs-6">Description</th>
+                           <th class="col-xs-2">Amount</th> 
+                           
+                           
+                        </tr>
+                      </thead>
+                      <tbody>
+                       
+                      <? for($c=0;$c<$lineCnt;$c++){?>
+                        <tr>
+                            <td><select class="select2_single form-control" tabindex="-1" name="account[]" >
+                                    <option value=""></option>
+                                    <? if(isset($account) && !empty($account[$c])) { 
+                                    for($a=0;$a<count($coa);$a++){ ?>
+                                    <option value="<?=$coa[$a]['account'];?>" <? isSelected($coa[$a]['account'],$account[$c]);?> ><?=$coa[$a]['account'];?>-<?=$coa[$a]['name'];?></option>
+                                    <? } } else { 
+                                    for($a=0;$a<count($coa);$a++){ ?>
+                                    <option value="<?=$coa[$a]['account'];?>" ><?=$coa[$a]['account'];?>-<?=$coa[$a]['name'];?></option>
+                                    <? } } ?>
+                                      
+                                </select>      
+                            </td>
+                            <td><input type="text" name="memo[]" value="<? if(isset($memo[$c])){ echo $memo[$c];};?>" placeholder="description" class="form-control" /></td>
+                            
+                            <td><input type="text" name="debit[]" value="<? if(isset($debit[$c])){ echo $debit[$c];} else { echo "0.00";};?>" class="form-control" onchange="checkSum(this.form)"/></td>
+                            
+                        </tr>
+                        
+                      <? } ?>
+                      
+                        <tr>
+                            <td><input type="submit" class="btn btn-default" value="+" onclick="ActionLineAdd();" /> </td>
+                            <td><input type="text" name="checkmemo" value="<? if(isset($checkmemo)){ echo $checkmemo; };?>" placeholder="Check Memo" class="form-control" /></td>
+                            <td><input type="text" name="debitAdd" value="<? if(isset($debitAdd)){ echo $debitAdd; } else { echo "0.00"; };?>" class="form-control" /></td>
+                            
+                          
+                        </tr>
+                      
+                      
+                     </tbody>
+                      </table>
+                       
+                                        
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            

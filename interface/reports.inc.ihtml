@@ -1,0 +1,35 @@
+<? 
+
+ function pl($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+    require('templates/form_rep_pl.ihtml'); 
+    
+ }
+ 
+ 
+ function bal($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    require('templates/form_rep_bal.ihtml');
+ }
+ 
+ 
+ function coa($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    require('templates/form_rep_coa.ihtml');
+ }
+ 
+ function trans($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    require('templates/form_rep_trans.ihtml'); 
+    
+ }

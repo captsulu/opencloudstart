@@ -1,0 +1,135 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Credit Card</h3>
+              </div>
+               </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                  
+                  <script>
+                        function chargeAdd(item){
+                            
+                            var checkboxes = document.getElementsByName('chargeSelect[]');
+                                    var vals = 0;
+                                    var invSelect = ""; 
+                                    for (var i=0, n=checkboxes.length;i<n;i++) {
+                                        if (checkboxes[i].checked) 
+                                        {
+                                            vals = vals + parseFloat(checkboxes[i].value);
+                                            invSelect += ","+checkboxes[i].id;
+                                        }
+                                    }
+                                
+                                document.getElementById('paymentAmt').innerHTML = '$ '+vals.toFixed(2);
+                                document.getElementById('paymentAmt2').value = vals;
+                                document.ccpay.transSelect.value = invSelect;                                    
+                            }
+                        
+                  
+                  </script>
+                    
+                    
+                    <ul class="nav navbar-right panel_toolbox">
+                       
+                       <li><a class="btn btn-default" href="main"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                   <h2>Credit Card Payment/Credits</h2>
+                   <div class="pull-right">
+                    <b><h1 id="paymentAmt"><?=number_money($paymentAmt)?></h1></b>
+                    </div>
+                    <div class="clearfix"></div>
+                    <form action="creditcard" method="POST" id="ccpay" name="ccpay">
+                        <input type="hidden" name="mode" value="ccpayinsert" />
+                        <input type="hidden" name="transSelect" value="" id="transSelect" />
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <div class="row">
+                      <div class="col-xs-2">
+                        <label>Entry Date</label>
+                        <input type="text" name="enterdate" value="<?=date("m/d/Y");?>" class="form-control" />
+                      
+                      </div>  
+                      <div class="col-xs-2">
+                        <label>Credit Card Account</label>
+                        <select name="chargeAcct" class="form-control" >
+                            <? for($a=0;$a<count($chgbank);$a++){ ?>
+                              <option value="<?=$chgbank[$a]['account'];?>" <? if(isset($chargeAcct)){ isSelected($chgbank[$a]['account'],$chargeAcct); };?> ><?=$chgbank[$a]['name'];?></option>
+                            <? }  ?>
+                        </select>
+                      </div>
+                      <div class="col-xs-2">
+                        <label>Bank Account</label>
+                        <select name="bankAcct" class="form-control" >
+                            <? for($a=0;$a<count($bank);$a++){ ?>
+                              <option value="<?=$bank[$a]['account'];?>" <? if(isset($bankAcct)){ isSelected($bank[$a]['account'],$bankAcct); };?> ><?=$bank[$a]['name'];?></option>
+                            <? }  ?>
+                        </select>
+                      </div>
+                      
+                      <div class="col-xs-2">
+                        <label>Amount</label>
+                        <input type="text" name="amount" value="" class="form-control" placeholder="0.00" id="paymentAmt2" />
+                      
+                      </div>
+                  </div>
+                  <br />
+                  <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th class="col-xs-1"><i class="fa fa-caret-down"></i></th>
+                           <th class="col-xs-2">Ref No</th>
+                           <th class="col-xs-4">Memo</th>
+                           <th class="col-xs-2">Amount</th> 
+                           
+                        </tr>
+                      </thead>
+                      <tbody>
+                      <? for($z=0;$z<count($charges);$z++){ ?>
+                            <tr>
+                                <td><input type="checkbox" name="chargeSelect[]" id="<?=$charges[$z]['id'];?>" value="<?=$charges[$z]['credit'];?>" onclick="return chargeAdd(this);"/> </td>
+                                <td><?=$charges[$z]['reference'];?></td>
+                                <td><?=$charges[$z]['memo'];?></td>
+                                <td><?=number_money($charges[$z]['credit']);?></td>
+                            </tr>
+                       <? } ?>
+                      </tbody>
+                    </table>
+                    <input type="submit" value="Make Payment" class="btn btn-primary" />
+                    </div>
+                    </div>
+                    </div>
+                  </div>
+                  </div>    
+                    </form>  
+           </div>  
+           </div>
+          </div>
+      </div>             

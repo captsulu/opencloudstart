@@ -1,0 +1,50 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Select Account to Reconcile</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <form action="reconcile" method="POST" >
+                    <input type="hidden" name="mode" value="bank" />
+                    
+                  
+                      <div class="col-xs-4">
+                        <label>Account</label>
+                        <select name="account" class="form-control" >
+                            <? for($a=0;$a<count($coa);$a++){?>
+                                <option value="<?=$coa[$a]['account'];?>"><?=$coa[$a]['account']?> - <?=$coa[$a]['name'];?></option>
+                            <? } ?>
+                        </select>
+                      </div>
+                      
+                      
+                  </div>
+                  <div class="box-footer"></div>
+                    <input type="submit" name="submit" value="Submit" class="btn btn-primary" />
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        </form>
+        

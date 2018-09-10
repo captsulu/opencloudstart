@@ -1,0 +1,45 @@
+<? 
+
+    function main($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        
+        //get the salestax liability balance 
+          //get the salestax COA
+    $sql = "select salestaxcoa from tbl_company where id = '$co' and active = '1'";
+     try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $salestaxcoa = $obj->salestaxcoa;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+      
+   $sql = "select sum(credit-debit) as salesLiaTax from tbl_genledger where account = '$salestaxcoa' and active = '1' and co_id = '$co' ";
+   //echo $sql; 
+      try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $salesLiaTax = $obj->salesLiaTax;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+        
+       //echo $salesLiaTax; 
+        require('templates/show_salestax.ihtml'); 
+                
+        
+    }
+    
+    
+    
+    

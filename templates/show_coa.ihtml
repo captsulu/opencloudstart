@@ -1,0 +1,106 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Chart of Accounts</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a href="coaadmin?mode=add" class="btn btn-default" ><i class="fa fa-plus"></i> Add </a></li>
+                      <li><a href="coa"></a></li></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                      <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Account<a href="coa?order=cAccount"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Name/Description<a href="coa?order=cName"><i class="fa fa-sort-amount-asc pull-right"></i></a></th> 
+                           <th>Group<a href="coa?order=group_id,cName"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Register</th>
+                          
+                          
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                       <? //print_r($coa); 
+                        for($x=0;$x<count($coa);$x++){ ?>
+                            <tr>
+                                <td><?=$coa[$x]['cAccount'];?></td>
+                                <td><?=$coa[$x]['cName'];?></td>
+                                <td><?=$coa[$x]['gName'];?></td>
+                                <td><div class="btn-group">
+                                    <a href="coaadmin?mode=register&acct=<?=$coa[$x]['cAccount'];?>" class="btn btn-info btn-sm"><i class="fa fa-folder-open-o"></i> View Register</a>
+                                    <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                  <ul class="dropdown-menu" role="menu">
+                                    <li><a href="coaadmin?mode=edit&id=<?=$coa[$x]['id'];?>" > Edit<i class="fa fa-edit pull-left"></i></a></li>
+                                    <li><a href="coaadmin?mode=delete&id=<?=$coa[$x]['id'];?>" > Remove<i class="fa fa-trash pull-left"></i></a></li>
+                                    <? if(isset($coa[$x]['lastupdate'])){ ?>
+                                    <li class="divider"></li>
+                                    <li style="text-align: center;">last updated: <?=retrieve_date($coa[$x]['lastupdate']); ?></li>
+                                    <? } ?>
+                                  </ul>
+                                </div>
+                                </td>
+                            
+                            </tr>
+                        <? } ?>
+                      
+                      
+                      </tbody>
+                      </table>
+                      
+                  </div>
+                  <div class="box-footer">
+                  
+                 <? if(!isset($page)){ $page = '0';}; ?>
+                 <div class="pagination-sm inline pull-left">
+                <h5><?=$records;?> Records  Page <?=$page+1;?> of <?=ceil($records/$perpage);?></h5>
+                </div>
+                
+                <div class="box-tools pull-right">
+                    <ul class="pagination pagination-sm inline">
+                    <? if(isset($page) && $page>0){ ?>
+                     <li><a href="coa?page=<?=$page-1;?>">&laquo;</a></li>
+                    <? } ?>
+                    <? if($records>$perpage){
+                         $totpages = ceil($records/$perpage);
+                         if($totpages<=$tabs){ $newtabs = $totpages; } else { $newtabs = $tabs; }
+                         
+                         $tabcnt = 1;
+                         while($tabcnt <= $newtabs){
+                            echo "<li><a href=\"coa?page=".($tabcnt-1)."\">".$tabcnt."</a></li>";
+                            $tabcnt++;
+                         }
+                    }
+                    ?>
+                     <li><a href="coa?page=<?=$page+1;?>">&raquo;</a></li>
+                     </ul>
+                  </div>
+                
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        

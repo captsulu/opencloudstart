@@ -1,0 +1,419 @@
+<? 
+    function main($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        //print_r($frm); 
+        
+                       
+     $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_products
+            where co_id = '$co' and active = '1' 
+             order by name
+             $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_products
+            where co_id = '$co' and active = '1'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $product[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+        require('templates/show_products.ihtml'); 
+
+
+        
+        
+    }
+    
+function find($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_products
+            where co_id = '$co' and active = '1' and name like '%$name%'
+             order by name
+             $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_products
+            where co_id = '$co' and active = '1' and name like '%$name%'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $product[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+        require('templates/show_products.ihtml'); 
+  
+    
+}    
+
+function add($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $sql = "select * from tbl_vendors where co_id = '$co' and active = '1' order by coname";
+    
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendors[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    $product = array();
+    $product['name'] ='';
+    $product['displayname'] ='';
+    $product['category_id'] ='';
+    $product['vendor_id'] ='';
+    $product['SKU'] ='';
+    $product['msrp'] ='';
+    $product['cost'] ='';
+    $product['price'] ='';
+    $product['weight'] ='';
+    $product['size'] ='';
+    $product['color'] ='';
+    $product['barcode'] ='';
+    $product['taxable'] ='';
+    $product['count'] ='';
+    $product['sold'] ='';
+    $product['reorder'] ='';
+    
+    
+    require('templates/form_product.ihtml');
+    
+}
+
+
+function insert($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    if(!isset($taxable)){
+        $taxable = 0;
+    }
+    if(!isset($count)){
+        $count = null;
+    }
+    if(!isset($reorder)){
+        $reorder = null;
+    }
+    if(!isset($sold)){
+        $sold = 0;
+    }
+    if(!isset($barcode)){
+        $barcode = null;
+    }
+    $ip = getIP();
+    
+     try   
+        {   
+            $data = array( "co_id"          => $co,
+                           "vendor_id"      => $vendor_id,
+                           "category_id"    => $category_id,
+                           "SKU"            => $SKU,
+                           "name"           => $name,
+                           "displayname"    => $displayname,
+                           "price"          => $price,
+                           "msrp"           => $msrp,
+                           "weight"         => $weight,
+                           "size"           => $size,
+                           "color"          => $color,
+                           "cost"           => $cost,
+                           "taxable"        => $taxable,
+                           "count"          => $count,
+                           "reorder"        => $reorder,
+                           "sold"           => $sold,
+                           "barcode"        => $barcode,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_products", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+    
+    $frm['alert'] = '2';
+    $frm['err'] = 'Product has been added...';
+    main($frm);
+    
+}
+
+function edit($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+  $sql = "select * from tbl_products where co_id = '$co' and id = '$id'"; 
+  
+   try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $product[$key] = $value;   
+            }
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    
+    
+    
+    
+  $sql = "select * from tbl_vendors where co_id = '$co' and active = '1' order by coname";
+    
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendors[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    
+    $showValues = 1;
+    
+    require('templates/form_product.ihtml');   
+    
+}
+
+function update($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+     if(!isset($taxable)){
+        $taxable = 0;
+    }
+    if(!isset($count)){
+        $count = null;
+    }
+    if(!isset($reorder)){
+        $reorder = null;
+    }
+    if(!isset($sold)){
+        $sold = 0;
+    }
+    if(!isset($barcode)){
+        $barcode = null;
+    }
+    $ip = getIP();
+    
+     try   
+        {   
+            $data = array( "co_id"          => $co,
+                           "vendor_id"      => $vendor_id,
+                           "category_id"    => $category_id,
+                           "SKU"            => $SKU,
+                           "name"           => $name,
+                           "displayname"    => $displayname,
+                           "price"          => $price,
+                           "msrp"           => $msrp,
+                           "weight"         => $weight,
+                           "size"           => $size,
+                           "color"          => $color,
+                           "cost"           => $cost,
+                           "taxable"        => $taxable,
+                           "count"          => $count,
+                           "reorder"        => $reorder,
+                           "sold"           => $sold,
+                           "barcode"        => $barcode,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_update( "tbl_products", $data, "id=".$id );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+        
+    $frm['alert'] = '2';
+    $frm['err'] = 'Product has been updated...';
+    main($frm);      
+
+}
+
+function trash($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    $ip = getIP();
+    
+       try  
+{  
+    $data = array( "active" => '0',
+                   "ipaddress" => $ip, 
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_products", $data, "id=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+            die;
+    //log error and/or redirect user to error page  
+}   
+
+
+        $frm['alert'] = '2'; 
+        $frm['err'] = 'Vendor has been removed...';
+        
+        main($frm);
+}
+
+    

@@ -1,0 +1,398 @@
+<? 
+
+    function main ($frm){ 
+        global $settings, $dbh;
+        extract($frm);
+        
+        //get vendors to show
+                   
+     $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_vendors
+            where co_id = '$co' and active = '1' 
+             order by coname
+             $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_vendors
+            where co_id = '$co' and active = '1'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendor[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+        require('templates/show_vendor.ihtml'); 
+}
+
+
+function find($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select * from tbl_vendors
+            where co_id = '$co' and active = '1' and coname like '%$name%'
+             order by coname
+             $limit";
+        
+     
+     
+     $sql2 = "select count(id) as cnt from tbl_vendors
+            where co_id = '$co' and active = '1' and coname like '%$name%'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $vendor[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+        require('templates/show_vendor.ihtml'); 
+    
+    
+}
+
+
+
+function add ($frm){
+        global $settings, $dbh;
+        extract($frm); 
+        
+        
+        require('templates/form_vendor.ihtml');
+}
+
+
+
+function insert($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //print_r($frm); 
+    if(!isset($w9)){
+        $w9=0;
+    }
+    
+    try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "coname"         => $coname,
+                           "nameFirst"      => $nameFirst,
+                           "nameLast"       => $nameLast, 
+                           "address1"       => $address1, 
+                           "address2"       => $address1, 
+                           "city"           => $city, 
+                           "state"          => $state,
+                           "zip"            => $zip,
+                           "sh_address1"    => $sh_address1,
+                           "sh_address2"    => $sh_address1,
+                           "sh_city"        => $sh_city,
+                           "sh_zip"         => $sh_zip,
+                           "email"          => $email,
+                           "phone"          => storage_phone($phone),
+                           "cellphone"      => storage_phone($cellphone),
+                           "taxid"          => $taxid,
+                           "w9"             => $w9,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_vendors", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+    
+    
+    
+    main($frm); 
+    
+    
+}
+
+
+function edit($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $sql = "select * from tbl_vendors where co_id = '$co' and id = '$id'";    
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        $obj = $rs->obj_fetch_object();
+            foreach($obj as $key => $value){
+             $vendor[$key] = $value;   
+            }
+   }
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+        die;
+    }
+    
+    
+    //get transactions informaiton 
+    $sql2 = "select enterdate, reference, debit, credit, memo from tbl_genledger 
+                where vendorid = '$id' and co_id = '$co' and active = '1' and entertype = '2'
+            group by reference    
+            order by enterdate desc limit 10";
+//echo $sql2;  
+
+try  
+    {  $rs = $dbh->obj_query( $sql2 ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $trans[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+        die;
+    }
+
+    if(!isset($trans)){
+        $trans = array();
+    }
+    //print_r($trans);
+
+    $showValues = '1';
+    
+    require('templates/form_vendor.ihtml');
+    
+}
+
+
+function update($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    if(!isset($w9)){
+        $w9 = 0;
+    }
+    
+    
+    
+    try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "coname"         => $coname,
+                           "nameFirst"      => $nameFirst,
+                           "nameLast"       => $nameLast, 
+                           "address1"       => $address1, 
+                           "address2"       => $address1, 
+                           "city"           => $city, 
+                           "state"          => $state,
+                           "zip"            => $zip,
+                           "sh_address1"    => $sh_address1,
+                           "sh_address2"    => $sh_address1,
+                           "sh_city"        => $sh_city,
+                           "sh_zip"         => $sh_zip,
+                           "email"          => $email,
+                           "phone"          => storage_phone($phone),
+                           "cellphone"      => storage_phone($cellphone),
+                           "taxid"          => $taxid,
+                           "w9"             => $w9,
+                           "lastuser"       => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),    
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_update( "tbl_vendors", $data, 'id='.$id );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+           // echo $rs->obj_affected_rows();   
+            
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        } 
+        
+        
+   main($frm);      
+    
+    
+}
+
+function trash($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+    //check transactions
+    $sql = "select count(id) as cnt from tbl_genledger where vendorid = '$id' and active = '1'"; 
+    //echo $sql;
+    try  
+    {  $rs = $dbh->obj_query( $sql );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //echo "records: ".$records."<br/>";
+    
+    
+    if($records>0){
+        //error 
+        
+        $frm['alert'] = '1'; 
+        $frm['err'] = 'Sorry, you can <b>NOT</b> delete this vendor, active transactions exist for this vendor...';
+        
+        main($frm); 
+        return;
+        
+    }
+    
+      
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_vendors", $data, "id=".$id );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+            die;
+    //log error and/or redirect user to error page  
+}   
+
+
+        $frm['alert'] = '2'; 
+        $frm['err'] = 'Vendor has been removed...';
+        
+        main($frm); 
+        return;   
+    
+    
+ }
+
+
+

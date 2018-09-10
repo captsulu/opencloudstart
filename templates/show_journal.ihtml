@@ -1,0 +1,96 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Journal Entries</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a href="main" class="btn btn-default" ><i class="fa fa-reply"></i> Back </a></li>
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                      <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>tracking<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Description<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>*</th>
+                           <th>Amount</th>
+                           <th><i class="fa fa-caret-down"></i></th>
+                           
+                           
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                       <? //print_r($journal); ?>
+                       <? for($a=0;$a<count($journal);$a++){ ?>
+                       <tr>
+                            <td><a href="journal?mode=edit&transid=<?=$journal[$a]['transid'];?>"><?=retrieve_date($journal[$a]['enterdate']);?></a></td>
+                            <td><a href="journal?mode=edit&transid=<?=$journal[$a]['transid'];?>"><?=$journal[$a]['transid'];?></a></td>
+                            <td><a href="journal?mode=edit&transid=<?=$journal[$a]['transid'];?>"><?=$journal[$a]['memo'];?></a></td>
+                            <td><? if($journal[$a]['reconcile'] == '1'){ echo "&sect;"; };?></td>
+                            <td><a href="journal?mode=edit&transid=<?=$journal[$a]['transid'];?>"><?=number_money($journal[$a]['Amt']);?></a></td>
+                            <td><a href="journal?mode=trash&transid=<?=$journal[$a]['transid'];?>" data-toggle="tooltip" data-placement="top" title="Delete Entry" onclick="return confirm('Are you sure you wish to Delete?')" ><i class="fa fa-trash"></i></a></td>
+                            
+                       
+                       </tr>
+                            
+                       <? } ?> 
+                      
+                      </tbody>
+                      </table>
+                      
+                  </div>
+                  <div class="box-footer">
+                  
+                 <? if(!isset($page)){ $page = '0';}; ?>
+                 <div class="pagination-sm inline pull-left">
+                <h5><?=$records;?> Records  Page <?=$page+1;?> of <?=ceil($records/$perpage);?></h5>
+                </div>
+                
+                <div class="box-tools pull-right">
+                    <ul class="pagination pagination-sm inline">
+                    <? if(isset($page) && $page>0){ ?>
+                     <li><a href="journal?mode=show&page=<?=$page-1;?>">&laquo;</a></li>
+                    <? } ?>
+                    <? if($records>$perpage){
+                         $totpages = ceil($records/$perpage);
+                         if($totpages<=$tabs){ $newtabs = $totpages; } else { $newtabs = $tabs; }
+                         
+                         $tabcnt = 1;
+                         while($tabcnt <= $newtabs){
+                            echo "<li><a href=\"journal?mode=show&page=".($tabcnt-1)."\">".$tabcnt."</a></li>";
+                            $tabcnt++;
+                         }
+                    }
+                    ?>
+                     <li><a href="journal?mode=show&page=<?=$page+1;?>">&raquo;</a></li>
+                     </ul>
+                  </div>
+                
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        

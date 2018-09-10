@@ -1,0 +1,541 @@
+<? 
+
+    function main ($frm){ 
+        global $settings, $dbh; 
+        
+        extract($frm); 
+        
+         //Grab COA accounts
+    $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+       if(!isset($order)){
+    	$order = " cAccount, cName ";
+       } 
+        
+        
+     
+     $sql = "select *, c.id as id, c.name as cName, g.name as gName, c.account as cAccount from tbl_coa c 
+            	left join tbl_groups g on c.group_id = g.id 
+            	where co_id = '$co' and c.active = '1' 
+            union
+            select *, c.id as id, c.name as cName, g.name as gName, c.account as cAccount from tbl_coa c 
+            	right join tbl_groups g on c.group_id = g.id 
+            	where co_id = '$co' and c.active = '1' 
+              order by $order $limit";
+     $sql2 = "select count(id) as cnt from tbl_coa c where active = '1' and co_id = '$co'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $coa[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+  
+        
+        
+        require('templates/show_coa.ihtml'); 
+        
+    }
+    
+    
+ function edit($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+  
+        $showValues = 1;
+        //get informatin to edit
+         try  
+    {  $rs = $dbh->obj_query( "select * from tbl_coa where id = '$id'" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+          $obj = $rs->obj_fetch_object();
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $coa[$key] = $value;
+       }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+    }  
+    
+    //get group list
+    $x=0;
+          try  
+    {  $rs = $dbh->obj_query( "select * from tbl_groups where active = '1' order by account, name" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+         
+    //convert login database information
+
+    while( $obj = $rs->obj_fetch_object()){
+    foreach ($obj as $key => $value){
+        $group[$x][$key] = $value;
+       }
+      $x++; 
+    }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+    } 
+    //get type list
+    $x=0;
+          try  
+    {  $rs = $dbh->obj_query( "select * from tbl_types where active = '1' order by name" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+          
+    //convert login database information
+
+    while( $obj = $rs->obj_fetch_object()){
+    foreach ($obj as $key => $value){
+        $type[$x][$key] = $value;
+       }
+      $x++; 
+    }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+    } 
+    
+        
+        require('templates/form_coa.ihtml');
+        
+    }
+    
+    
+function update($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //print_r($frm); 
+    //die;
+           try  
+        {  
+            $data = array(  "name" => $name,
+                            "lastupdate" => date("Y-m-d H:i:s"),
+                            "user_id" => $userID );
+            $rs = $dbh->obj_update( "tbl_coa", $data, "id=".$id );  
+
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+        
+    } 
+    catch ( Exception $e )  
+    { }
+    
+   main($frm);  
+    
+}    
+
+
+function add ($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //get group list
+    $x=0;
+          try  
+    {  $rs = $dbh->obj_query( "select * from tbl_groups where active = '1' order by account, name" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+         
+    //convert login database information
+
+    while( $obj = $rs->obj_fetch_object()){
+    foreach ($obj as $key => $value){
+        $group[$x][$key] = $value;
+       }
+      $x++; 
+    }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+    } 
+    //get type list
+    $x=0;
+          try  
+    {  $rs = $dbh->obj_query( "select * from tbl_types where active = '1' order by name" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+          
+    //convert login database information
+
+    while( $obj = $rs->obj_fetch_object()){
+    foreach ($obj as $key => $value){
+        $type[$x][$key] = $value;
+       }
+      $x++; 
+    }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+    } 
+    
+        
+        require('templates/form_coa.ihtml');
+    
+}
+
+function insert ($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+       
+    //print_r($frm); 
+    
+    
+    try   
+{   
+    $data = array( "co_id" => $co,   
+                   "group_id"   => $group_id,   
+                   "type_id"    => $type_id,
+                   "account"    => $account,   
+                   "name"   => $name,
+                   "active" => '1',
+                   "lastupdate" => date("Y-m-d H:i:s"),
+                   "user_id" => $userID
+                   );
+       
+    $rs = $dbh->obj_insert( "tbl_coa", $data );   
+       
+    if ( $dbh->obj_error() )   
+        throw new Exception( $dbh->obj_error_message() );   
+           
+    //echo $rs->obj_affected_rows();   
+       
+}   
+catch ( Exception $e )    
+{   
+    //log error and/or redirect user to error page   
+}    
+    
+    
+    main($frm);
+    
+}
+
+
+function register($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //get ledger information in reserve order
+    
+    $sql = "select * from tbl_genledger g 
+	left join tbl_vendors v on g.vendorid = v.id
+where g.active = '1' and g.co_id = '$co' and account = '$acct' "; 
+    
+         //Grab COA accounts
+    $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+       if(!isset($order)){
+    	$order = " order by enterdate desc, entertime desc ";
+        $sql .= $order;
+        //echo $sql;
+       } 
+    
+     $sql2 = "select count(id) as cnt from tbl_genledger where active = '1' and co_id = '$co' and account = '$acct'";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $register[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+       require('templates/show_register.ihtml'); 
+    
+}
+
+function trash($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+  
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$transid );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+
+
+ $frm['alert'] = '2'; 
+ $frm['err'] = 'Transaction removed from system...'; 
+    
+ register($frm);   
+    
+    
+ }
+ 
+ 
+ 
+ function unrecon($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    
+    //find recon that is effected 
+    
+    $sql = "select * from tbl_recondetails where transid = '$transid' and active = '1' ";
+    //echo $sql;
+      try { 
+                    $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                        
+                    $obj = $rs->obj_fetch_object();
+                    $reconID = $obj->recon_id;                        
+                }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                }   
+    
+    //get Recon information 
+    
+    $sql = "select * from tbl_reconcile where id = '$reconID'"; 
+    
+      try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $recon[$key] = $value;
+            }
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+        die;
+    }
+    
+       
+ 
+    require('templates/form_unrecon.ihtml');
+    
+ }
+
+function rmvitem($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //print_r($frm); 
+
+    //simply remove roncile item only. 
+    //deactivate tbl_recondetails
+    $data = array( "active"     => 0 );
+    try { 
+        $rs = $dbh->obj_update("tbl_recondetails", $data, "transid=".$id); 
+        if( $dbh->obj_error() )
+            throw new Exception ($dbh->obj_error_message() ); 
+        } catch (Exception $e )
+        {
+            echo $dbh->obj_error_message();
+            die;
+        }    
+    //deactivate the transid in genledger
+   $data = array(  "lastupdate"     => date("Y-m-d H:i:s"),
+                   "lastuser"       => $userID,
+                   "active"         => 0 );
+    try { 
+        $rs = $dbh->obj_update("tbl_genledger", $data, "transid=".$id); 
+        if( $dbh->obj_error() )
+            throw new Exception ($dbh->obj_error_message() ); 
+        } catch (Exception $e )
+        {
+            echo $dbh->obj_error_message();
+            die;
+        } 
+    
+    main($frm);
+    
+}
+
+
+function rmrecon($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+    //get all transid in reconcile 
+    $sql = "select * from tbl_recondetails where recon_id = '$reconID' and active = '1'";
+    //echo $sql;
+     try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+          $x=0;
+          while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $transNo[$x][$key] = $value;
+            }
+           $x++; 
+        }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+        die;
+    }
+    
+    
+    for($i=0;$i<count($transNo);$i++){
+        
+         //deactivate tbl_recondetails
+    $data = array( "active"     => 0 );
+    try { 
+        $rs = $dbh->obj_update("tbl_recondetails", $data, "transid=".$transNo[$i]['transid']); 
+        if( $dbh->obj_error() )
+            throw new Exception ($dbh->obj_error_message() ); 
+        } catch (Exception $e )
+        {
+            echo $dbh->obj_error_message();
+            die;
+        }    
+    //deactivate the transid in genledger
+   $data = array(  "lastupdate"     => date("Y-m-d H:i:s"),
+                   "lastuser"       => $userID,
+                   "active"         => 0 );
+    try { 
+        $rs = $dbh->obj_update("tbl_genledger", $data, "transid=".$transNo[$i]['transid']); 
+        if( $dbh->obj_error() )
+            throw new Exception ($dbh->obj_error_message() ); 
+        } catch (Exception $e )
+        {
+            echo $dbh->obj_error_message();
+            die;
+        }
+        
+        
+        
+    }
+    
+        
+   $data = array(  "ipaddress"      => getIP(),
+                   "lastupdate"     => date("Y-m-d H:i:s"),
+                   "lastuser"       => $userID,
+                   "active"         => 0 );     
+    //deactiveate the reconcile itself    
+    try {
+        $rs = $dbh->obj_update("tbl_reconcile", $data, "id=".$reconID);
+        if( $dbh->obj_error() )
+            throw new Exception ($dbh->obj_error_message() ); 
+        } catch (Exception $e )
+        {
+            echo $dbh->obj_error_message();
+            die;
+        }
+    
+    main($frm);      
+    
+    
+}
+
+    

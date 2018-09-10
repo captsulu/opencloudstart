@@ -1,0 +1,726 @@
+<? 
+
+    function main ($frm){ 
+        global $settings, $dbh; 
+        
+        extract($frm); 
+        //print_r($frm); 
+        
+        
+         //Grab COA accounts
+    $sql = "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account";
+    //echo $sql ; 
+           try  
+    {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+       $x=0;
+       while($obj = $rs->obj_fetch_object() ){     
+          
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $coa[$x][$key] = $value;
+       }
+       $x++;
+       }
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        die;
+    }  
+  
+        
+        
+        require('templates/form_journal.ihtml'); 
+        
+    }
+    
+    
+    function insert($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        //check to make sure that the journal entry balances
+        //print_r($frm); 
+        if($debitAdd == $creditAdd){
+            
+            //check to make sure all accounts are filled in entry
+            $search = '0.00';
+            $replace = '';
+            $debitTmp = $debit;
+            array_walk($debitTmp,
+                function (&$v) use ($search, $replace){
+                    $v = str_replace($search, $replace, $v);    
+                }                                                                     
+            );  
+        
+            $creditTmp = $credit;
+            array_walk($creditTmp, function (&$v) use ($search, $replace){
+                    $v = str_replace($search, $replace, $v);    
+                }                                                                     
+            );
+            
+           $debitCount = count(array_filter($debitTmp));
+           $creditCount = count(array_filter($creditTmp));
+           $accountCount = count(array_filter($account)); 
+           
+           $ChkCount = $debitCount + $creditCount; 
+           
+            if($accountCount == $ChkCount){
+                
+                //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+               
+               /// bcoa
+                $bcoa = date("YmdHis");
+                $goof =0;
+   	
+   	        //insert debit items into genledger
+   	    for($deb=0;$deb<count($debit);$deb++){
+   	
+   		$curAccount = $account[$deb];
+   		$curAmount = $debit[$deb];
+   		$curMemo = $memo[$deb];
+   		
+   		if(isset($curAmount) && ($curAmount)>0){
+   		   	
+            
+   	    // Record debit in Gen Ledger
+        try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => '1',
+                           "histype"        => 'JRN',
+                           "bcoa"           => $bcoa,
+                           "account"        => $curAccount,
+                           "reference"      => $journalName,                           
+                           "debit"          => $curAmount,
+                           "credit"         => null,
+                           "memo"           => $curMemo,
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+            $goof++;    
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+    
+        	
+   		}	
+   	} //end loop debit
+   	
+   		for($cr=0;$cr<count($credit);$cr++){
+   	
+   		$curAccount = $account[$cr];
+   		$curAmount = $credit[$cr];
+   		$curMemo = $expmemo[$cr];
+   		
+   		if(isset($curAmount) && $curAmount>0){
+   		   	
+   	    // Record credit in Gen Ledger
+         // Record debit in Gen Ledger
+        try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => '1',
+                           "histype"        => 'JRN',
+                           "bcoa"           => $bcoa,
+                           "account"        => $curAccount,
+                           "reference"      => $journalName,                           
+                           "debit"          => null,
+                           "credit"         => $curAmount,
+                           "memo"           => $curMemo,
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+       //echo $rs->obj_affected_rows();   
+            $goof++;    
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page   
+        }
+    
+    
+   		
+   		}	
+   	}
+   	
+    if($goof >1){
+        $frm['alert'] = '2';
+        $frm['err'] = 'Success. Post has been recorded in Ledger';
+    }
+         
+         unset($frm['account']);
+         unset($frm['debit']);
+         unset($frm['credit']); 
+         unset($frm['memo']);
+         unset($frm['creditAdd']);
+         unset($frm['debitAdd']);       
+         main($frm);
+         return;       
+                
+                
+                
+                
+                
+            } else {
+                
+                //echo "test";
+                    //Grab COA accounts
+                $sql = "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account";
+                //echo $sql ; 
+                       try  
+                {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $coa[$x][$key] = $value;
+                   }
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+            
+            
+            $alert = '1'; 
+            $err = 'You did not put an account on each entry please correct this...';
+            require('templates/form_journal.ihtml');
+                
+            }
+            
+        } else {
+            //error journal entry does not balance
+            
+                  //Grab COA accounts
+                $sql = "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account";
+                //echo $sql ; 
+                       try  
+                {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $coa[$x][$key] = $value;
+                   }
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+            
+            
+            $alert = '1'; 
+            $err = 'Your Journal Entry does not balance...';
+            require('templates/form_journal.ihtml');
+        }
+        
+        
+        
+    }
+    
+    
+ function show($frm){ 
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //get records
+               
+                
+     $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+               
+        $sql = "select transid, enterdate, bcoa, sum(debit) as Amt, reconcile, reference, memo from tbl_genledger 
+            where histype = 'JRN' and co_id = '$co' and active = '1' 
+                group by transid
+                order by enterdate, transid desc $limit";
+        
+     
+     
+     $sql2 = "select count(transid) as cnt from tbl_genledger 
+            where histype = 'JRN' and co_id = '$co' and active = '1' 
+                group by transid";   
+     
+    try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $journal[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }  
+    try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+  
+        require('templates/show_journal.ihtml'); 
+                    
+    
+ }   
+ 
+ function trash($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$transid );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+
+ show($frm);   
+    
+    
+ }
+ 
+ 
+ 
+ function edit($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    //get journal entry information
+    $showValues = 1;
+        
+    $sql = "select * from tbl_genledger where co_id = '$co' and transid = '$transid' and active = '1' order by id";
+    
+              try  
+                {  $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   $debitSum = 0;
+                   $creditSum = 0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $journal[$x][$key] = $value;
+                    if($key == 'account'){
+                        $account[$x] = $value;
+                    }
+                    if($key == 'debit'){
+                        $debit[$x] = $value;
+                        $debitSum = $debitSum + $value; 
+                    }
+                    if($key == 'credit'){
+                        $credit[$x] = $value;
+                        $creditSum = $creditSum + $value;
+                    }
+                    if($key == 'memo'){
+                        $memo[$x] = $value;
+                    }
+                    }     
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+                
+                $enterdate = retrieve_date($journal[0]['enterdate']); 
+                $reference = $journal[0]['reference']; 
+                $debitAdd = number_decimal($debitSum);
+                $creditAdd = number_format((float)$creditSum, 2, '.', '');
+                
+    
+                //get Coa List  
+                       try  
+                {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $coa[$x][$key] = $value;
+                   }
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+                
+                
+    
+    require('templates/form_journal.ihtml');
+    
+}
+
+
+  function update($frm) {
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //update transid deactivate and re-insert transid
+     //print_r($frm)
+     
+         try  
+{  
+    $data = array( "active" => '0',
+                   "lastupdate" => date("Y-m-d H:i:s"), 
+                   "lastuser" => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_genledger", $data, "transid=".$transid );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+
+ if($debitAdd == $creditAdd){
+            
+            //check to make sure all accounts are filled in entry
+            $search = '0.00';
+            $replace = '';
+            $debitTmp = $debit;
+            array_walk($debitTmp,
+                function (&$v) use ($search, $replace){
+                    $v = str_replace($search, $replace, $v);    
+                }                                                                     
+            );  
+        
+            $creditTmp = $credit;
+            array_walk($creditTmp, function (&$v) use ($search, $replace){
+                    $v = str_replace($search, $replace, $v);    
+                }                                                                     
+            );
+            
+           $debitCount = count(array_filter($debitTmp));
+           $creditCount = count(array_filter($creditTmp));
+           $accountCount = count(array_filter($account)); 
+           
+           $ChkCount = $debitCount + $creditCount; 
+           
+            if($accountCount == $ChkCount){
+                
+                //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+               
+               /// bcoa
+                $bcoa = date("YmdHis");
+                $goof =0;
+   	
+   	        //insert debit items into genledger
+   	    for($deb=0;$deb<count($debit);$deb++){
+   	
+   		$curAccount = $account[$deb];
+   		$curAmount = $debit[$deb];
+   		$curMemo = $memo[$deb];
+   		
+   		if(isset($curAmount) && ($curAmount)>0){
+   		   	
+            
+   	    // Record debit in Gen Ledger
+        try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => '1',
+                           "histype"        => 'JRN',
+                           "bcoa"           => $bcoa,
+                           "account"        => $curAccount,
+                           "reference"      => $journalName,                           
+                           "debit"          => $curAmount,
+                           "credit"         => null,
+                           "memo"           => $curMemo,
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+            $goof++;    
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+    
+        	
+   		}	
+   	} //end loop debit
+   	
+   		for($cr=0;$cr<count($credit);$cr++){
+   	
+   		$curAccount = $account[$cr];
+   		$curAmount = $credit[$cr];
+   		$curMemo = $memo[$cr];
+   		
+   		if(isset($curAmount) && $curAmount>0){
+   		   	
+   	    // Record credit in Gen Ledger
+         // Record debit in Gen Ledger
+        try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => '1',
+                           "histype"        => 'JRN',
+                           "bcoa"           => $bcoa,
+                           "account"        => $curAccount,
+                           "reference"      => $journalName,                           
+                           "debit"          => null,
+                           "credit"         => $curAmount,
+                           "memo"           => $curMemo,
+                           "ipaddress"      => $ip,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+       //echo $rs->obj_affected_rows();   
+            $goof++;    
+        }   
+        catch ( Exception $e )    
+        {   
+            //log error and/or redirect user to error page   
+        }
+    
+    
+   		
+   		}	
+   	}
+   	
+    if($goof >1){
+        $frm['alert'] = '2';
+        $frm['err'] = 'Success. Post has been recorded in Ledger';
+    }
+         
+         unset($frm['account']);
+         unset($frm['debit']);
+         unset($frm['credit']); 
+         unset($frm['memo']);
+         unset($frm['creditAdd']);
+         unset($frm['debitAdd']);       
+         main($frm);
+         return;       
+                
+                
+                
+                
+                
+            } else {
+                
+                //echo "test";
+                    //Grab COA accounts
+                $sql = "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account";
+                //echo $sql ; 
+                       try  
+                {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $coa[$x][$key] = $value;
+                   }
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+            
+            
+            $alert = '1'; 
+            $err = 'You did not put an account on each entry please correct this...';
+            require('templates/form_journal.ihtml');
+                
+            }
+            
+        } else {
+            //error journal entry does not balance
+            
+                  //Grab COA accounts
+                $sql = "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account";
+                //echo $sql ; 
+                       try  
+                {  $rs = $dbh->obj_query( "select account,name from tbl_coa where co_id = '$co' and active = '1' order by account" ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                   $x=0;
+                   while($obj = $rs->obj_fetch_object() ){     
+                      
+                    
+                //convert login database information
+                foreach ($obj as $key => $value){
+                    $coa[$x][$key] = $value;
+                   }
+                   $x++;
+                   }
+                } 
+                catch ( Exception $e )  
+                { 
+                    //log error and/or redirect user to error page 
+                    echo $dbh->obj_error_message();
+                    die;
+                }  
+            
+            
+            $alert = '1'; 
+            $err = 'Your Journal Entry does not balance...';
+            require('templates/form_journal.ihtml');
+        }
+        
+
+    
+    
+  }
+    

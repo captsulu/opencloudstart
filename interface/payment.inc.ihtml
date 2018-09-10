@@ -1,0 +1,210 @@
+<? 
+
+    function main($frm){ 
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        
+        
+          $perpage = 12;
+      $tabs = 15;
+		if(isset($page) && $page>0){
+			$page = $frm['page'];
+			$seg = ($page*$perpage);
+			$limit = "limit $seg, $perpage ";
+		} else {
+			$limit = "limit $perpage ";
+		}
+		
+		if(!isset($frm['page'])){
+			$page = 0;
+		}
+       
+        
+        $sql = "select i.*, c.displayname from tbl_invoice i
+	               left join tbl_customers c on i.customer_id = c.id 
+                where i.co_id = '$co' 
+                and i.active = '1' 
+                and i.customer_id is not null 
+                and ((totalpaid is null) or total>totalpaid)
+                        order by create_date desc, i.id"; 
+                        
+                        
+        
+     $sql2 = "select count(id) as cnt from tbl_invoice where co_id = '$co' and active = '1' and customer_id is not null 
+                and ((totalpaid is null) or total>totalpaid)";                    
+                        
+
+          try  
+    {  $rs = $dbh->obj_query( $sql );
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $invoice[$x][$key] = $value;   
+            }
+            $x++;
+        }
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+            echo $dbh->obj_error_message();
+            die;
+    } 
+    
+    //print_r($invoice); 
+     try  
+    {  $rs = $dbh->obj_query( $sql2 );
+        $obj = $rs->obj_fetch_object(); 
+        $records = $obj->cnt;
+        
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        require('error.html'); 
+        exit();
+    } 
+    
+    
+    require('templates/show_unpaid.ihtml'); 
+    
+        
+    }
+    
+function add($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    $invoiceID = $id;
+    
+    //Get Paytypes
+    $sql = "select * from tbl_paytypes where active = '1'";
+       try  
+    {  $rs = $dbh->obj_query( $sql ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $x=0;
+        while($obj = $rs->obj_fetch_object()){
+            foreach($obj as $key => $value){
+             $paytypes[$x][$key] = $value;   
+            }
+            $x++;
+        }
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }
+    
+    //get balance Due
+    $sql2 = "select id, total, subtotal, totalpaid, customer_id, salestax from tbl_invoice where id = '$invoiceID'";
+       try  
+    {  $rs = $dbh->obj_query( $sql2 ); 
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        $obj = $rs->obj_fetch_object(); 
+            foreach($obj as $key => $value){
+             $invoice[$key] = $value;   
+            }
+            
+      
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message(); 
+    }
+    
+    if(isset($invoice['totalpaid']) && $invoice['totalpaid']>0){
+        $totaldue = $invoice['total'] - $invoice['totalpaid']; 
+    } else {
+        $totaldue = $invoice['total'];
+    }
+    
+    $customer_id = $invoice['customer_id']; 
+    
+    require('templates/form_payment.ihtml');
+    
+}    
+  
+  function insert($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    //insert payment
+    
+    //print_r($frm);
+       try  
+{  
+  $data = array(    "invoice_id"    => $invoiceID,  
+                    "co_id"         => $co,
+                    "customer_id"   => $customer_id,
+                    "amount"        => $totalpaid,
+                    "paiddate"      => date("Y-m-d"),
+                    "paytype"       => $paytype,
+                    "reference"     => $reference,
+                    "active"        => '1',
+                    "lastupdate"    => date("Y-m-d H:i:s"), 
+                    "lastuser"      => $userID );  
+      
+    $rs = $dbh->obj_insert( "tbl_payments", $data );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+    die;
+    //log error and/or redirect user to error page  
+} 
+
+ //check paidinfull status
+ if(($totaldue - $totalpaid )<=0){
+    $paidinfull = '1';
+ } else {
+    $paidinfull = null;
+ }
+
+
+  //update invoice 
+         try  
+{  
+  $data = array(    "totalpaid"     => $totalpaid,
+                    "paiddate"      => date("Y-m-d"),
+                    "paidinfull"    => $paidinfull,
+                    "lastupdate"    => date("Y-m-d H:i:s"), 
+                    "lastuser"      => $userID );  
+      
+    $rs = $dbh->obj_update( "tbl_invoice", $data, "id=".$invoiceID );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    echo $dbh->obj_error_message();
+    die;
+    //log error and/or redirect user to error page  
+}
+
+
+  
+
+    $frm['alert'] = '2';
+    $frm['err'] = 'Payment has been posted...';
+
+    main($frm); 
+        
+  }  

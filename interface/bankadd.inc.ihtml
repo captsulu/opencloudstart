@@ -1,0 +1,171 @@
+<? 
+
+    function main($frm){
+        global $settings, $dbh;
+        extract($frm); 
+        
+        
+        require('templates/form_bankadd.ihtml');
+        
+    }    
+    
+    function insert($frm){
+        global $settings, $dbh; 
+        extract($frm); 
+        
+        //check to see if COA already exists
+        $sql = "select count(id) as cnt from tbl_coa where account = '$account' and co_id = '$co' and active = '1'";
+        
+        try 
+        { 
+            $rs = $dbh->obj_query( $sql ); 
+                 
+            if ( $dbh->obj_error() ) 
+                throw new Exception( $dbh->obj_error_message() ); 
+                 
+            $obj = $rs->obj_fetch_object();
+            $acctCnt = $obj->cnt;
+        } 
+        catch ( Exception $e )  
+        { 
+            echo $obj->obj_error_message();
+            die;
+        }
+        
+        if($acctCnt>0){
+            $frm['alert'] = 1;
+            $frm['err'] = 'Account number already in use please correct and try again...';
+            main($frm); 
+            exit();
+        }  
+         
+        //insert COA
+        try
+        {
+            $data = array( "co_id"          => $co,
+                           "group_id"       => 0,
+                           "account"        => $account,
+                           "name"           => $name,
+                           "type_id"        => 4,
+                           "user_id"        => $userID,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "active"         => 1      );
+           $rs = $dbh->obj_insert( "tbl_coa", $data ); 
+            if ( $dbh->obj_error() ) 
+                throw new Exception( $dbh->obj_error_message() ); 
+                
+           } 
+            catch ( Exception $e )  
+            { 
+                echo $obj->obj_error_message();
+                die;
+            }    
+               
+        
+        //insert genledger entries Double Entry Required
+        
+            //create transid
+                $sql = "select max(transid) as transid from tbl_genledger where co_id = '$co' and active = '1'";
+                try { $rs = $dbh->obj_query( $sql ); 
+                    if ( $dbh->obj_error() ) 
+                        throw new Exception( $dbh->obj_error_message() ); 
+                    $obj = $rs->obj_fetch_object();
+                    $transid = $obj->transid + 1;                        
+                  }  
+                catch ( Exception $e )  
+                { 
+                    echo $dbh->obj_error_message();
+                    die;
+                } 
+                
+                ///get IP                
+			   $ip = getIP();
+        
+               $bcoa = $account; 
+               $entertype = 1;        
+               
+       //deposit total credit to Bank Account  
+                
+          try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'BAL',
+                           "bcoa"           => $bcoa,
+                           "account"        => $bcoa,
+                           "priority"       => '1',
+                           "reference"      => 'OPN',
+                           "paytype"        => null,                            
+                           "debit"          => $balance,
+                           "credit"         => null,
+                           "memo"           => 'Account Open Balance',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+             
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+   			
+                 $entertype++;
+	   			 
+                    try   
+        {   
+            $data = array( "co_id"          => $co,   
+                           "transid"        => $transid,   
+                           "enterdate"      => storage_date($enterdate),
+                           "entertime"      => date("H:i:s"),
+                           "entertype"      => $entertype,
+                           "histype"        => 'BAL',
+                           "bcoa"           => $bcoa,
+                           "account"        => '3000',
+                           "priority"       => null,
+                           "reference"      => 'OPN',
+                           "paytype"        => null,                            
+                           "debit"          => null,
+                           "credit"         => $balance,
+                           "memo"           => 'Account Open Balance',
+                           "ipaddress"      => $ip,
+                           "lastupdate"     => date("Y-m-d H:i:s"),
+                           "lastuser"       => $userID,
+                           "active"         => '1'
+                           );   
+       //print_r($data); 
+       
+            $rs = $dbh->obj_insert( "tbl_genledger", $data );   
+       
+        if ( $dbh->obj_error() )   
+                throw new Exception( $dbh->obj_error_message() );   
+                   
+            //echo $rs->obj_affected_rows();   
+              
+        }   
+        catch ( Exception $e )    
+        {   
+            echo $dbh->obj_error_message();
+            die;
+            //log error and/or redirect user to error page   
+        }
+        
+        
+        
+      main($frm); 
+        
+    }    

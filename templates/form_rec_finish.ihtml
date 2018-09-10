@@ -1,0 +1,80 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Finish Reconcile</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <label>Reports</label>
+                        <h2><?=$account;?></h2>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <label>Reconcile Start Date</label>
+                        <h2><?=retrieve_date($startdate);?></h2>
+                      </div>
+                   
+                   <div class="row">   
+                      <div class="col-xs-6">
+                        <label>Reconcile End Date</label>
+                        <h2><?=retrieve_date($enddate);?></h2>
+                      </div>  
+                   </div>
+                  
+                  
+                    <form action="print/print_reconcile.php" method="POST" target="_blank" >
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="account" value="<?=$account;?>" />
+                    <input type="hidden" name="startbalance" value="<?=$startbalance;?>" />
+                    <input type="hidden" name="startdate" value="<?=$startdate;?>" />
+                    <input type="hidden" name="endbalance" value="<?=$endbalance;?>" />
+                    <input type="hidden" name="enddate" value="<?=$enddate;?>" />
+                    <input type="hidden" name="debitAdd" value="<?=$debitAdd;?>" />
+                    <input type="hidden" name="creditAdd" value="<?=$creditAdd;?>" />
+                    
+                    
+                     
+                     <div class="row">
+                        <div class="col-xs-4">
+                            <label>Reconcile Report</label><br />
+                            <input type="submit" value="Print Report" class="btn btn-success" />
+                        
+                        </div>
+                     </div>
+                     </form>
+                      
+                      
+                      
+                  </div>
+                  <div class="box-footer"></div>
+                    
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        

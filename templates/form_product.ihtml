@@ -1,0 +1,175 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Sales</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Product</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                       <li><a class="btn btn-default" href="products"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <div class="row">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add/Edit Product</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? //print_r($group);?>
+                  <form action="products" method="POST">
+                    <? if(isset( $showValues )){?>
+                    <input type="hidden" name="mode" value="update" />
+                    <input type="hidden" name="id" value="<?=$id?>" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } else { ?>
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    
+                    <? } ?>
+                    <div class="col-xs-12">
+                        <label>Display Name</label>
+                        <input type="text" name="displayname" value="<?if(isset($product['category_id'])){ echo $product['displayname'];};?>" placeholder="Display Name" class="form-control" required=""/>
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Short Name</label>
+                        <input type="text" name="name" value="<?=$product['name'];?>" placeholder="Short Name" class="form-control" required="" />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Vendor</label>
+                                <select class="select2_single form-control" tabindex="-1" name="vendor_id">
+                                    <? for($a=0;$a<count($vendors);$a++){ ?>
+                                    <option value="<?=$vendors[$a]['id'];?>" <? if(isset($product['vendor_id'])){ isSelected($vendors[$a]['id'],$product['vendor_id']); };?> ><?=$vendors[$a]['coname'];?></option>
+                                    <? }  ?>
+                                      
+                            </select>
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Category</label>
+                            <select class="form-control" name="category_id">
+                                <option value="1" <? if(isset($product['category_id'])){ isSelected('1',$product['category_id']); };?> >Service</option>
+                                <option value="2" <? if(isset($product['category_id'])){ isSelected('2',$product['category_id']); };?> >Product</option>
+                            </select>
+                    </div>   
+                    <div class="col-xs-6">
+                        <label>SKU</label>
+                        <input type="text" name="SKU" value="<?=$product['SKU'];?>" placeholder="SKU" class="form-control" />    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>MSRP</label>
+                        <input type="text" name="msrp" value="<?=$product['msrp'];?>" placeholder="Suggested Price" class="form-control" />
+                    </div>    
+                    <div class="col-xs-6">
+                        <label>Cost</label>
+                        <input type="text" name="cost" value="<?=$product['cost'];?>" placeholder="Cost" class="form-control" />
+                            
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Price</label>
+                        <input type="text" name="price" value="<?=$product['price'];?>" placeholder="Price Per Unit" class="form-control" />    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Weight</label>
+                        <input type="text" name="weight" value="<?=$product['weight'];?>" placeholder="Shipping Weight" class="form-control" />    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Size</label>
+                        <input type="text" name="size" value="<?=$product['size'];?>" placeholder="Size" class="form-control" />    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Color</label>
+                        <input type="text" name="color" value="<?=$product['color'];?>" placeholder="color" class="form-control" />    
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <label>Barcode</label>
+                        <input type="text" name="barcode" value="<?=$product['barcode'];?>" placeholder="barcode UPC/EA6/EA13" class="form-control" />    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Taxable</label><br />
+                        <input type="checkbox" name="taxable" value="1" <? isChecked('1',$product['taxable']); ?> /> Taxable 
+                    </div>
+                    
+                  
+                </div>
+                
+                
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Inventory</h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 
+                 <div class="col-xs-3">
+                      <!-- required for floating -->
+                      <!-- Nav tabs -->
+                      <ul class="nav nav-tabs tabs-left">
+                        <li class="active"><a href="#home" data-toggle="tab">Inventory</a>
+                        </li>
+                        <li><a href="#settings" data-toggle="tab">Settings</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="col-xs-9">
+                      <!-- Tab panes -->
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="home">
+                          <p class="lead">Inventory</p>
+                              <div class="col-xs-6">
+                                <label>InStock Count</label>
+                                 <input type="text" name="count" value="<?=$product['count'];?>" placeholder="In Stock Count" class="form-control" /> 
+                              </div>
+                              <div class="col-xs-6">
+                                <label>Sold</label>
+                                 <input type="text" name="sold" value="<?=$product['sold'];?>" placeholder="Qty Sold" class="form-control" /> 
+                              </div>
+                                
+                          
+                        </div>
+                        
+                        <div class="tab-pane" id="settings">
+                        <p class="lead">Settings</p>
+                            <div class="col-xs-6">
+                                <label>Reorder Qty</label>
+                                <input type="text" name="reorder" value="<?=$product['reorder'];?>" placeholder="Reorder Qty" class="form-control" />
+                            </div>
+                        </div>
+
+                    <div class="clearfix"></div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+                </div>
+              </div>
+              <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+            </div>

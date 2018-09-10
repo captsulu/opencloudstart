@@ -1,0 +1,101 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Income</h3>
+              </div>
+                 </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <ul class="nav navbar-right panel_toolbox">
+                       
+                       <li><a class="btn btn-default" href="main"><i class="fa fa-reply"></i> Back</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 <div class="col-md-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Add Invoice Payment</h2>
+                    <div class="pull-right">
+                    <small>Invoice TotalDue <?=number_money($invoice['subtotal'])?> SalesTax <?=number_money($invoice['salestax']);?></small><b><h1 id="invoiceDue"><?=number_money($totaldue)?></h1></b>
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? //print_r($group);?>
+                  <form action="payment" method="POST" >
+                    <input type="hidden" name="mode" value="insert" />
+                    <input type="hidden" name="userID" value="<?=$userID?>" />
+                    <input type="hidden" name="co" value="<?=$co?>" />
+                    <input type="hidden" name="totaldue" value="<?=$totaldue;?>" />
+                    <input type="hidden" name="customer_id" value="<?=$customer_id;?>" />
+                    
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label>Payment Date</label><br />
+                            <input type="text" name="enterdate" value="<? if(isset($depositheader)){ echo retrieve_date($depositheader['enterdate']); } else { echo date("m/d/Y");}; ?>" placeholder="Date"  class="form-control" required="" />
+                            
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Invoice No</label>
+                            <input type="text" name="invoiceID" value="<?=$invoiceID?>" class="form-control" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                    <div class="col-xs-6">
+                        <label>Payment Type</label>
+                        <select name="paytype" class="form-control">
+                            <? for($a=0;$a<count($paytypes);$a++){?>
+                                <option value="<?=$paytypes[$a]['id'];?>" ><?=$paytypes[$a]['name'];?></option>
+                            <? } ?>
+                        
+                        </select>
+                    
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Check No/Reference</label>
+                        <input type="text" name="reference" value="" placeholder="ChkNo/Ref" class="form-control" />
+                    </div>
+                   </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label>Amount Paid</label>
+                            <input type="text" name="totalpaid" value="" placeholder="0.00" class="form-control" />
+                        
+                        </div>
+                        
+                    
+                    </div>
+                       
+                                        
+                </div>
+                <div class="box-footer">
+                    <input type="submit" class="btn btn-info pull-right" value="Submit" />
+                </div>
+                </form>
+              </div>
+            </div>
+            

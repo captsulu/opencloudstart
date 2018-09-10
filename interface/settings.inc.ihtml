@@ -1,0 +1,77 @@
+<? 
+       
+ function edit($frm){
+    global $settings, $dbh; 
+    extract($frm); 
+    
+    //print_r($frm); 
+    
+                            
+     try  
+    {  $rs = $dbh->obj_query( "select * from tbl_company 
+                                where active = '1' and id = '$co'" ); 
+             
+        if ( $dbh->obj_error() ) 
+            throw new Exception( $dbh->obj_error_message() ); 
+             
+        
+        $obj = $rs->obj_fetch_object();
+        
+    //convert login database information
+    foreach ($obj as $key => $value){
+        $company[$key] = $value;
+    }
+         
+    } 
+    catch ( Exception $e )  
+    { 
+        //log error and/or redirect user to error page 
+        echo $dbh->obj_error_message();
+        exit();
+    }  
+    
+    
+    
+    require('templates/form_settings.ihtml');
+    
+    
+    
+  }  
+        
+
+ function update($frm){
+    global $settings, $dbh;
+    extract($frm); 
+    
+    
+     
+     $data = array( "companyName"   =>  $companyName,
+                    "salestax"      =>  $salestax,
+                    "salestaxcoa"   =>  $salestaxcoa,
+                    "fein"          =>  $fein);   
+    
+    
+    
+    try
+    {
+     $rs = $dbh->obj_update( "tbl_company", $data, "id=".$co );  
+      
+    if ( $dbh->obj_error() )  
+        throw new Exception( $dbh->obj_error_message() );  
+          
+    //echo $rs->obj_affected_rows();  
+      
+}  
+catch ( Exception $e )   
+{  
+    //log error and/or redirect user to error page  
+}   
+    
+    
+ $frm['alert'] = '2';
+ $frm['err'] = 'Settings information updated...'; 
+ edit($frm); 
+    
+    
+    
+}         

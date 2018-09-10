@@ -1,0 +1,117 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Sales Tax</h3>
+              </div>
+            
+            </div>
+
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-6 col-sm-6 col-xs-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Sales Tax Liability Report</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <h2><?=number_money($salesLiaTax);?> &nbsp;</h2>
+                        
+                      <li> <a href="main" class="btn btn-default" ><i class="fa fa-reply"></i> Back </a> </li>
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                    <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                    
+                  </div>
+                  <div class="x_content">
+                      
+                       <? //print_r($checks); ?>
+                       <form action="print/print_salestax.php" method="POST" target="_blank">
+                        <input type="hidden" name="co" value="<?=$co?>" />
+                        <input type="hidden" name="userID" value="<?=$userID?>" />
+                    
+                    <div class="row">
+                      <div class="col-xs-4">
+                        <label>Start Date</label>
+                        <input type="text" name="startdate" value="01/01/<?=date("Y");?>" class="form-control" />
+                      </div>
+                      <div class="col-xs-4">
+                        <label>End Date</label>
+                        <input type="text" name="enddate" value="<?=date("m/d/Y");?>" class="form-control" />
+                      </div>
+                    </div>
+                      
+                      <div class="col-xs-4">
+                        <label>Format</label><br />
+                        <input type="radio" name="orient" value="P" checked="" /> Portrait<br />
+                        <input type="radio" name="orient" value="L"  /> Landscape<br /> 
+                      </div>
+                      
+                      <div class="col-xs-4">
+                        <label>Include Non-Taxable Sales</label><br />
+                        <input type="checkbox" name="nontax" value="1" checked="" /> Non-Taxable Totals
+                        
+                      
+                      </div>
+                      
+                  </div>
+                  <div class="box-footer"></div>
+                    <input type="submit" name="submit" value="Print Report" class="btn btn-primary" />
+                </div>
+                      
+                  
+                
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Sales Tax Liability Posting</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <h2><?=number_money($salesLiaTax);?> &nbsp;</h2>
+                        
+                      <li> <a href="main" class="btn btn-default" ><i class="fa fa-reply"></i> Back </a> </li>
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                    <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                    
+                  </div>
+                  <div class="x_content">
+                    <p>You can temporarily create an invoice to pay your sales tax. Coming Soon.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        

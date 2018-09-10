@@ -1,0 +1,133 @@
+<!-- page content -->
+        <div class="right_col" role="main">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Accounting</h3>
+              </div>
+
+             
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Account Register - <?=$acct;?></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a href="coaadmin" class="btn btn-default" ><i class="fa fa-reply"></i> Back </a></li>
+                      
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  <? if(isset($alert) && $alert == '1'){?>
+                  <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Error</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                  <? if(isset($alert) && $alert == '2'){?>
+                  <div class="alert alert-success alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="fa fa-remove"></i></span>
+                    </button>
+                    <strong>Success</strong> <?=$err;?>
+                  </div>
+                  <? } ?>
+                      <table id="datatable-keytable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                           <th>Date<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Ref<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>Vendor<a href="#"></a></th> 
+                           <th>Description<a href="#"><i class="fa fa-sort-amount-asc pull-right"></i></a></th>
+                           <th>*</th>
+                           <th>Debit</th>
+                           <th>Credit</th>
+                           <th><i class="fa fa-caret-down"></i></th>
+                           
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                       <? //print_r($register); ?>
+                       <? for($a=0;$a<count($register);$a++){ 
+                                  if($register[$a]['histype'] == 'CHK'){
+                                    $url = 'check?mode=edit&id='.$register[$a]['transid'];
+                            } elseif($register[$a]['histype'] == 'JRN'){
+                                    $url = 'journal?mode=edit&transid='.$register[$a]['transid'];
+                            } elseif($register[$a]['histype'] == 'BAL'){
+                                    $url = 'journal?mode=edit&transid='.$register[$a]['transid'];
+                            } elseif($register[$a]['histype'] == 'DEP'){
+                                    $url = 'deposit?mode=edit&id='.$register[$a]['transid'];
+                                
+                            } else {
+                                $url = '#';
+                            }
+                            
+                            
+                            ?>
+                       <tr>
+                            <td><a href="<?=$url;?>"><?=retrieve_date($register[$a]['enterdate']);?></a></td>
+                            <td><a href="<?=$url;?>"><?=$register[$a]['reference'];?></a></td>
+                            <td><? if($register[$a]['vendorid']>0){ ?>
+                                <a href="<?=$url;?>"><?=$register[$a]['coname'];?></a>
+                                <? } ?>
+                            </td>
+                            <td><a href="<?=$url;?>"><?=$register[$a]['memo'];?></a></td>
+                            <td><? if($register[$a]['reconcile'] == '1'){ ?>
+                                    <a href="coaadmin?mode=unrecon&transid=<?=$register[$a]['transid'];?>" onclick="return confirm('Are you sure you want to change Reconcile? This will throw your last reconcile out of balance...')">&sect;</a>
+                                 <? } ?>   
+                            </td>
+                            <td><?=number_money($register[$a]['debit']);?></td>
+                            <td><?=number_money($register[$a]['credit']);?></td>
+                            <td><a href="coaadmin?mode=trash&transid=<?=$register[$a]['transid'];?>&acct=<?=$acct?>" data-toggle="tooltip" data-placement="top" title="Delete Complete Entry" onclick="return confirm('Are you sure you wish to Delete?')" ><i class="fa fa-trash"></i></a></td>
+                       
+                       </tr>
+                            
+                       <? } ?> 
+                      
+                      </tbody>
+                      </table>
+                      
+                  </div>
+                  <div class="box-footer">
+                  
+                 <? if(!isset($page)){ $page = '0';}; ?>
+                 <div class="pagination-sm inline pull-left">
+                <h5><?=$records;?> Records  Page <?=$page+1;?> of <?=ceil($records/$perpage);?></h5>
+                </div>
+                
+                <div class="box-tools pull-right">
+                    <ul class="pagination pagination-sm inline">
+                    <? if(isset($page) && $page>0){ ?>
+                     <li><a href="coa?page=<?=$page-1;?>">&laquo;</a></li>
+                    <? } ?>
+                    <? if($records>$perpage){
+                         $totpages = ceil($records/$perpage);
+                         if($totpages<=$tabs){ $newtabs = $totpages; } else { $newtabs = $tabs; }
+                         
+                         $tabcnt = 1;
+                         while($tabcnt <= $newtabs){
+                            echo "<li><a href=\"coa?page=".($tabcnt-1)."\">".$tabcnt."</a></li>";
+                            $tabcnt++;
+                         }
+                    }
+                    ?>
+                     <li><a href="coa?page=<?=$page+1;?>">&raquo;</a></li>
+                     </ul>
+                  </div>
+                
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page content -->
+        
+        
